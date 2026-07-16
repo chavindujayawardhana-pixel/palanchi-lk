@@ -19,6 +19,7 @@ Then open [http://localhost:3000](http://localhost:3000).
 | ------------- | ---------------------------- | ------------------------------------ |
 | `/`           | `palanchi-homepage.jsx`      | Home + hero search + featured/latest |
 | `/search`     | `palanchi-search.jsx`        | Listing search with filters          |
+| `/ads/[id]`   | `palanchi-ad-detail.jsx`     | Ad detail — gallery, contact, similar |
 | `/create-ad`  | `palanchi-create-ad.jsx`     | Multi-section ad submission form     |
 | `/admin`      | `palanchi-admin.jsx`         | Admin dashboard (Recharts)           |
 | `/login`      | `palanchi-auth.jsx`          | Login / register                     |

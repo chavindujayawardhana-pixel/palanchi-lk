@@ -299,7 +299,7 @@ function AdSection({ title, viewAll, ads, t }: { title: string; viewAll: string;
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 18 }}>
         {ads.map((ad) => (
-          <div key={ad.id} className="card-hover" style={{ background: surface, border: `1px solid ${border}`, borderRadius: 18, overflow: "hidden", cursor: "pointer", position: "relative" }}>
+          <Link key={ad.id} href={`/ads/${ad.id}`} className="card-hover" style={{ background: surface, border: `1px solid ${border}`, borderRadius: 18, overflow: "hidden", cursor: "pointer", position: "relative", textDecoration: "none", color: "inherit", display: "block" }}>
             <div style={{ position: "relative" }}>
               <img src={ad.img} alt={ad.title} style={{ width: "100%", height: 150, objectFit: "cover", display: "block" }} />
               {ad.featured && (
@@ -321,7 +321,7 @@ function AdSection({ title, viewAll, ads, t }: { title: string; viewAll: string;
                 Rs {fmt(ad.price)} <span style={{ fontSize: 12, fontWeight: 500, color: textMuted }}>{t[ad.period as Period]}</span>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </section>

@@ -168,7 +168,7 @@ export default function SearchPage() {
             ) : (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 18 }}>
                 {results.map((ad) => (
-                  <div key={ad.id} className="card-hover" style={{ background: surface, border: `1px solid ${border}`, borderRadius: 18, overflow: "hidden", cursor: "pointer" }}>
+                  <Link key={ad.id} href={`/ads/${ad.id}`} className="card-hover" style={{ background: surface, border: `1px solid ${border}`, borderRadius: 18, overflow: "hidden", cursor: "pointer", textDecoration: "none", color: "inherit", display: "block" }}>
                     <div style={{ position: "relative" }}>
                       <img src={ad.img} alt={ad.title} style={{ width: "100%", height: 148, objectFit: "cover", display: "block" }} />
                       {ad.featured && <span style={{ position: "absolute", top: 10, left: 10, background: gold, color: "#1F2937", fontSize: 11, fontWeight: 700, padding: "4px 9px", borderRadius: 8 }}>FEATURED</span>}
@@ -185,7 +185,7 @@ export default function SearchPage() {
                         Rs {fmt(ad.price)} <span style={{ fontSize: 12, fontWeight: 500, color: textMuted }}>{t[ad.period as Period]}</span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
