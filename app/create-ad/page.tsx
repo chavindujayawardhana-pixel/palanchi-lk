@@ -197,9 +197,11 @@ export default function CreateAdPage() {
     setSubmitError(null);
 
     try {
-      const { data: ad, error: insertError } = await supabase
+      const adId = crypto.randomUUID();
+      const { error: insertError } = await supabase
         .from("advertisements")
         .insert({
+          id: adId,
           title: form.title,
           description: form.description,
           category_id: form.category ? Number(form.category) : null,
@@ -216,9 +218,7 @@ export default function CreateAdPage() {
           address: form.address || null,
           map_link: form.mapLink || null,
           status: "pending",
-        })
-        .select("id")
-        .single();
+        });
 
       if (insertError) throw insertError;
 
@@ -227,14 +227,14 @@ export default function CreateAdPage() {
         for (let idx = 0; idx < images.length; idx++) {
           const img = images[idx];
           const ext = img.file.name.split(".").pop();
-          const path = `${ad.id}/${img.id}.${ext}`;
+          const path = `${adId}/${img.id}.${ext}`;
           const { error: uploadError } = await supabase.storage
             .from("advertisement-images")
             .upload(path, img.file);
           if (uploadError) throw uploadError;
           const { data: pub } = supabase.storage.from("advertisement-images").getPublicUrl(path);
           rows.push({
-            advertisement_id: ad.id,
+            advertisement_id: adId,
             image_url: pub.publicUrl,
             is_cover: idx === coverIndex,
             sort_order: idx,
