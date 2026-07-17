@@ -2,9 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { UploadCloud, X, Star, MapPin, Phone, Mail, CheckCircle2, ImagePlus } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
+import { useAuth } from "@/components/AuthProvider";
+import { AuthNav } from "@/components/AuthNav";
 import { DISTRICTS, TOWNS } from "@/lib/data";
 import { danger } from "@/lib/theme";
 import { supabase } from "@/lib/supabase";
@@ -126,6 +129,8 @@ const EMPTY_FORM: FormState = {
 
 export default function CreateAdPage() {
   const { lang, dark, colors } = useTheme();
+  const router = useRouter();
+  const { user, profile, loading: authLoading } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
 
@@ -137,6 +142,25 @@ export default function CreateAdPage() {
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [categories, setCategories] = useState<CategoryRow[]>([]);
+  const [prefilled, setPrefilled] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/login?next=/create-ad&notice=login-required");
+    }
+  }, [authLoading, user, router]);
+
+  useEffect(() => {
+    if (profile && !prefilled) {
+      setForm((f) => ({
+        ...f,
+        contactName: [profile.first_name, profile.last_name].filter(Boolean).join(" ") || f.contactName,
+        phone: profile.phone || f.phone,
+        email: profile.email || f.email,
+      }));
+      setPrefilled(true);
+    }
+  }, [profile, prefilled]);
 
   useEffect(() => {
     let cancelled = false;
@@ -192,7 +216,7 @@ export default function CreateAdPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!validate()) return;
+    if (!user || !validate()) return;
     setSubmitting(true);
     setSubmitError(null);
 
@@ -202,6 +226,7 @@ export default function CreateAdPage() {
         .from("advertisements")
         .insert({
           id: adId,
+          user_id: user.id,
           title: form.title,
           description: form.description,
           category_id: form.category ? Number(form.category) : null,
@@ -262,6 +287,8 @@ export default function CreateAdPage() {
     setSubmitted(false);
   }
 
+  if (authLoading || !user) return null;
+
   if (submitted) {
     return (
       <div style={{ background: bg, color: text, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
@@ -280,7 +307,7 @@ export default function CreateAdPage() {
 
   return (
     <div style={{ background: bg, color: text, minHeight: "100vh" }}>
-      <Navbar maxWidth={900} logoProps={{ fontSize: 20 }} />
+      <Navbar maxWidth={900} logoProps={{ fontSize: 20 }} right={<AuthNav />} />
 
       <form onSubmit={handleSubmit} style={{ maxWidth: 900, margin: "0 auto", padding: "32px 24px 80px" }}>
         <h1 className="disp" style={{ fontSize: 26, fontWeight: 700, margin: "0 0 6px" }}>{t.formTitle}</h1>

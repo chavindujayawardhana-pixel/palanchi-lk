@@ -10,6 +10,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
+import { AuthNav } from "@/components/AuthNav";
 import { type Period } from "@/lib/data";
 import { fetchAdById, fetchApprovedAds, type LiveAd } from "@/lib/ads";
 import { fmt } from "@/lib/format";
@@ -107,9 +108,12 @@ export default function AdDetailPage() {
     <div style={{ background: colors.bg, color: text, minHeight: "100vh" }}>
       <Navbar
         right={
-          <Link href="/create-ad" className="btn" style={{ background: gold, color: "#1F2937", borderRadius: 10, padding: "9px 16px", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
-            {t.navCreate}
-          </Link>
+          <>
+            <Link href="/create-ad" className="btn" style={{ background: gold, color: "#1F2937", borderRadius: 10, padding: "9px 16px", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+              {t.navCreate}
+            </Link>
+            <AuthNav />
+          </>
         }
       />
 

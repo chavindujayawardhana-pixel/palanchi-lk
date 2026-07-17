@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, Lock, User, Phone, Eye, EyeOff, MapPin, CheckCircle2 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
+import { useAuth } from "@/components/AuthProvider";
+import { supabase } from "@/lib/supabase";
 import { DISTRICTS, TOWNS } from "@/lib/data";
 import { danger } from "@/lib/theme";
 
@@ -13,7 +16,7 @@ const dict = {
     registerTitle: "Create your account", registerSub: "Register to publish and manage advertisements.",
     email: "Email", emailPh: "you@example.com", password: "Password", passwordPh: "Enter your password",
     confirmPassword: "Confirm password", rememberMe: "Remember me", forgotPassword: "Forgot password?",
-    login: "Log in", register: "Register", continueGuest: "Continue as guest",
+    login: "Log in", register: "Register",
     noAccount: "Don't have an account?", haveAccount: "Already have an account?",
     signUp: "Sign up", signIn: "Sign in",
     firstName: "First name", lastName: "Last name", phone: "Phone", phonePh: "07X XXX XXXX",
@@ -23,14 +26,18 @@ const dict = {
     mustAgree: "You must agree to the terms to continue",
     loginSuccess: "Logged in successfully", registerSuccess: "Account created successfully",
     loginSuccessBody: "Welcome back to Palanchi.lk.", registerSuccessBody: "You can now log in and manage your advertisements.",
+    registerPendingTitle: "Check your inbox", registerPendingBody: "We've sent a confirmation link to your email. Confirm your address, then log in.",
     continue: "Continue",
+    mustLoginToPost: "Please log in or register to post an ad.",
+    loginFailed: "Incorrect email or password.",
+    registerFailed: "Something went wrong creating your account. Please try again.",
   },
   si: {
     loginTitle: "නැවත සාදරයෙන් පිළිගනිමු", loginSub: "ඔබේ දැන්වීම් කළමනාකරණය කිරීමට පිවිසෙන්න.",
     registerTitle: "ඔබේ ගිණුම සාදන්න", registerSub: "දැන්වීම් පළ කිරීමට සහ කළමනාකරණය කිරීමට ලියාපදිංචි වන්න.",
     email: "විද්‍යුත් තැපෑල", emailPh: "you@example.com", password: "මුරපදය", passwordPh: "ඔබේ මුරපදය ඇතුළත් කරන්න",
     confirmPassword: "මුරපදය තහවුරු කරන්න", rememberMe: "මතක තබාගන්න", forgotPassword: "මුරපදය අමතක වුණාද?",
-    login: "පිවිසෙන්න", register: "ලියාපදිංචි වන්න", continueGuest: "අමුත්තෙකු ලෙස ඉදිරියට යන්න",
+    login: "පිවිසෙන්න", register: "ලියාපදිංචි වන්න",
     noAccount: "ගිණුමක් නැද්ද?", haveAccount: "දැනටමත් ගිණුමක් තිබේද?",
     signUp: "ලියාපදිංචි වන්න", signIn: "පිවිසෙන්න",
     firstName: "මුල් නම", lastName: "අග නම", phone: "දුරකථනය", phonePh: "07X XXX XXXX",
@@ -40,14 +47,18 @@ const dict = {
     mustAgree: "ඉදිරියට යාමට ඔබ නියමයන්ට එකග විය යුතුය",
     loginSuccess: "සාර්ථකව පිවිසුණි", registerSuccess: "ගිණුම සාර්ථකව සාදන ලදී",
     loginSuccessBody: "නැවත Palanchi.lk වෙත සාදරයෙන් පිළිගනිමු.", registerSuccessBody: "දැන් ඔබට පිවිස ඔබේ දැන්වීම් කළමනාකරණය කළ හැක.",
+    registerPendingTitle: "ඔබේ තැපෑල පරීක්ෂා කරන්න", registerPendingBody: "අපි ඔබේ විද්‍යුත් තැපෑලට තහවුරු කිරීමේ සබැඳියක් යවා ඇත. එය තහවුරු කර පසුව පිවිසෙන්න.",
     continue: "ඉදිරියට",
+    mustLoginToPost: "දැන්වීමක් පළ කිරීමට කරුණාකර පිවිසෙන්න හෝ ලියාපදිංචි වන්න.",
+    loginFailed: "වැරදි විද්‍යුත් තැපෑලක් හෝ මුරපදයක්.",
+    registerFailed: "ඔබේ ගිණුම සෑදීමේදී දෝෂයක් ඇති විය. නැවත උත්සාහ කරන්න.",
   },
   ta: {
     loginTitle: "மீண்டும் வருக", loginSub: "உங்கள் விளம்பரங்களை நிர்வகிக்க உள்நுழையவும்.",
     registerTitle: "உங்கள் கணக்கை உருவாக்கவும்", registerSub: "விளம்பரங்களை வெளியிட மற்றும் நிர்வகிக்க பதிவு செய்யவும்.",
     email: "மின்னஞ்சல்", emailPh: "you@example.com", password: "கடவுச்சொல்", passwordPh: "உங்கள் கடவுச்சொல்லை உள்ளிடவும்",
     confirmPassword: "கடவுச்சொல்லை உறுதிப்படுத்தவும்", rememberMe: "என்னை நினைவில் வை", forgotPassword: "கடவுச்சொல் மறந்துவிட்டதா?",
-    login: "உள்நுழை", register: "பதிவு செய்க", continueGuest: "விருந்தினராக தொடரவும்",
+    login: "உள்நுழை", register: "பதிவு செய்க",
     noAccount: "கணக்கு இல்லையா?", haveAccount: "ஏற்கனவே கணக்கு உள்ளதா?",
     signUp: "பதிவு செய்க", signIn: "உள்நுழை",
     firstName: "முதல் பெயர்", lastName: "கடைசி பெயர்", phone: "தொலைபேசி", phonePh: "07X XXX XXXX",
@@ -57,19 +68,40 @@ const dict = {
     mustAgree: "தொடர நீங்கள் விதிமுறைகளுக்கு ஒப்புக்கொள்ள வேண்டும்",
     loginSuccess: "வெற்றிகரமாக உள்நுழைந்தீர்கள்", registerSuccess: "கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது",
     loginSuccessBody: "மீண்டும் Palanchi.lk க்கு வருக.", registerSuccessBody: "இப்போது நீங்கள் உள்நுழைந்து உங்கள் விளம்பரங்களை நிர்வகிக்கலாம்.",
+    registerPendingTitle: "உங்கள் மின்னஞ்சலை சரிபார்க்கவும்", registerPendingBody: "உறுதிப்படுத்தல் இணைப்பை உங்கள் மின்னஞ்சலுக்கு அனுப்பியுள்ளோம். அதை உறுதிப்படுத்திய பின் உள்நுழையவும்.",
     continue: "தொடரவும்",
+    mustLoginToPost: "விளம்பரம் இட உள்நுழையவும் அல்லது பதிவு செய்யவும்.",
+    loginFailed: "தவறான மின்னஞ்சல் அல்லது கடவுச்சொல்.",
+    registerFailed: "உங்கள் கணக்கை உருவாக்கும்போது பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.",
   },
 };
 
-type SuccessMode = "login" | "register" | false;
+type SuccessMode = "login" | "register" | "register-pending" | false;
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginPageInner />
+    </Suspense>
+  );
+}
+
+function LoginPageInner() {
   const { lang, dark, colors } = useTheme();
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user, loading: authLoading } = useAuth();
+
+  const next = searchParams.get("next") || "/";
+  const showLoginRequiredNotice = searchParams.get("notice") === "login-required";
+
+  const [mode, setMode] = useState<"login" | "register">(searchParams.get("mode") === "register" ? "register" : "login");
   const [showPw, setShowPw] = useState(false);
   const [showPw2, setShowPw2] = useState(false);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
   const [success, setSuccess] = useState<SuccessMode>(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const [login, setLogin] = useState({ email: "", password: "", remember: false });
   const [reg, setReg] = useState({
@@ -80,6 +112,13 @@ export default function LoginPage() {
   const t = dict[lang];
   const { bg, surface, text, textMuted, border, gold, teal } = colors;
 
+  // Already logged in (e.g. visited /login directly) — bounce onward.
+  useEffect(() => {
+    if (!authLoading && user && !success) {
+      router.replace(next);
+    }
+  }, [authLoading, user, success, next, router]);
+
   const fieldStyle = (err?: boolean): React.CSSProperties => ({
     width: "100%", background: dark ? "#141B1F" : "#F8F9FA", border: `1px solid ${err ? danger : border}`,
     borderRadius: 10, padding: "11px 13px 11px 38px", color: text, fontSize: 14.5, outline: "none",
@@ -87,16 +126,26 @@ export default function LoginPage() {
   const labelStyle: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: text, marginBottom: 6, display: "block" };
   const iconStyle: React.CSSProperties = { position: "absolute", left: 13, top: 13 };
 
-  function handleLoginSubmit(e: React.FormEvent) {
+  async function handleLoginSubmit(e: React.FormEvent) {
     e.preventDefault();
     const errs: Record<string, boolean> = {};
     if (!login.email.trim()) errs.lEmail = true;
     if (!login.password.trim()) errs.lPassword = true;
     setErrors(errs);
-    if (Object.keys(errs).length === 0) setSuccess("login");
+    if (Object.keys(errs).length > 0) return;
+
+    setSubmitting(true);
+    setAuthError(null);
+    const { error } = await supabase.auth.signInWithPassword({ email: login.email, password: login.password });
+    setSubmitting(false);
+    if (error) {
+      setAuthError(t.loginFailed);
+      return;
+    }
+    setSuccess("login");
   }
 
-  function handleRegisterSubmit(e: React.FormEvent) {
+  async function handleRegisterSubmit(e: React.FormEvent) {
     e.preventDefault();
     const errs: Record<string, boolean> = {};
     (["firstName", "lastName", "email", "phone", "district", "town", "password", "confirmPassword"] as const).forEach((k) => {
@@ -105,23 +154,55 @@ export default function LoginPage() {
     if (reg.password && reg.confirmPassword && reg.password !== reg.confirmPassword) errs.confirmPassword = true;
     if (!reg.agree) errs.agree = true;
     setErrors(errs);
-    if (Object.keys(errs).length === 0) setSuccess("register");
+    if (Object.keys(errs).length > 0) return;
+
+    setSubmitting(true);
+    setAuthError(null);
+    const { data, error } = await supabase.auth.signUp({
+      email: reg.email,
+      password: reg.password,
+      options: {
+        emailRedirectTo: typeof window !== "undefined" ? `${window.location.origin}/login` : undefined,
+        data: {
+          first_name: reg.firstName,
+          last_name: reg.lastName,
+          phone: reg.phone,
+          district: reg.district,
+          town: reg.town,
+        },
+      },
+    });
+    setSubmitting(false);
+    if (error) {
+      setAuthError(t.registerFailed);
+      return;
+    }
+    setSuccess(data.session ? "register" : "register-pending");
   }
 
   if (success) {
+    const title = success === "login" ? t.loginSuccess : success === "register" ? t.registerSuccess : t.registerPendingTitle;
+    const body = success === "login" ? t.loginSuccessBody : success === "register" ? t.registerSuccessBody : t.registerPendingBody;
     return (
       <div style={{ background: bg, color: text, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
         <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 20, padding: 40, maxWidth: 420, textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.1)" }}>
           <div style={{ width: 58, height: 58, borderRadius: "50%", background: dark ? "#123028" : "#E1F5EE", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px" }}>
             <CheckCircle2 size={28} color="#0F6E56" />
           </div>
-          <h2 className="disp" style={{ fontSize: 19, fontWeight: 600, margin: "0 0 8px" }}>
-            {success === "login" ? t.loginSuccess : t.registerSuccess}
-          </h2>
-          <p style={{ fontSize: 14, color: textMuted, marginBottom: 26 }}>
-            {success === "login" ? t.loginSuccessBody : t.registerSuccessBody}
-          </p>
-          <button className="btn" onClick={() => { setSuccess(false); setMode("login"); }} style={{ width: "100%", background: gold, color: "#1F2937", borderRadius: 12, padding: "13px", fontWeight: 600, fontSize: 15 }}>
+          <h2 className="disp" style={{ fontSize: 19, fontWeight: 600, margin: "0 0 8px" }}>{title}</h2>
+          <p style={{ fontSize: 14, color: textMuted, marginBottom: 26 }}>{body}</p>
+          <button
+            className="btn"
+            onClick={() => {
+              if (success === "register-pending") {
+                setSuccess(false);
+                setMode("login");
+              } else {
+                router.push(next);
+              }
+            }}
+            style={{ width: "100%", background: gold, color: "#1F2937", borderRadius: 12, padding: "13px", fontWeight: 600, fontSize: 15 }}
+          >
             {t.continue}
           </button>
         </div>
@@ -136,13 +217,19 @@ export default function LoginPage() {
       <div style={{ maxWidth: 460, margin: "0 auto", padding: "48px 24px 80px" }}>
         <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 22, padding: "32px 28px", boxShadow: "0 12px 40px rgba(0,0,0,0.06)" }}>
 
+          {showLoginRequiredNotice && (
+            <div style={{ background: dark ? "#2A2410" : "#FFF7E0", border: `1px solid ${gold}`, borderRadius: 12, padding: "12px 14px", fontSize: 13.5, color: text, marginBottom: 20 }}>
+              {t.mustLoginToPost}
+            </div>
+          )}
+
           <div style={{ display: "flex", background: dark ? "#141B1F" : "#F1EFE8", borderRadius: 12, padding: 4, marginBottom: 28 }}>
-            <button className="btn" onClick={() => { setMode("login"); setErrors({}); }} style={{
+            <button className="btn" onClick={() => { setMode("login"); setErrors({}); setAuthError(null); }} style={{
               flex: 1, padding: "9px", borderRadius: 9, fontSize: 13.5, fontWeight: 600,
               background: mode === "login" ? surface : "transparent", color: mode === "login" ? text : textMuted,
               boxShadow: mode === "login" ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
             }}>{t.signIn}</button>
-            <button className="btn" onClick={() => { setMode("register"); setErrors({}); }} style={{
+            <button className="btn" onClick={() => { setMode("register"); setErrors({}); setAuthError(null); }} style={{
               flex: 1, padding: "9px", borderRadius: 9, fontSize: 13.5, fontWeight: 600,
               background: mode === "register" ? surface : "transparent", color: mode === "register" ? text : textMuted,
               boxShadow: mode === "register" ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
@@ -183,16 +270,15 @@ export default function LoginPage() {
                   <a href="#" style={{ fontSize: 13, color: teal, fontWeight: 600, textDecoration: "none" }}>{t.forgotPassword}</a>
                 </div>
 
-                <button type="submit" className="btn" style={{ width: "100%", background: gold, color: "#1F2937", borderRadius: 12, padding: "13px", fontWeight: 600, fontSize: 15, marginBottom: 10 }}>
+                {authError && <div style={{ marginBottom: 14 }}><FieldError text={authError} /></div>}
+
+                <button type="submit" disabled={submitting} className="btn" style={{ width: "100%", background: gold, color: "#1F2937", borderRadius: 12, padding: "13px", fontWeight: 600, fontSize: 15, opacity: submitting ? 0.7 : 1 }}>
                   {t.login}
-                </button>
-                <button type="button" className="btn" style={{ width: "100%", background: "transparent", border: `1px solid ${border}`, color: text, borderRadius: 12, padding: "13px", fontWeight: 500, fontSize: 14.5 }}>
-                  {t.continueGuest}
                 </button>
               </form>
 
               <p style={{ textAlign: "center", fontSize: 13.5, color: textMuted, marginTop: 22 }}>
-                {t.noAccount} <span onClick={() => setMode("register")} style={{ color: teal, fontWeight: 600, cursor: "pointer" }}>{t.signUp}</span>
+                {t.noAccount} <span onClick={() => { setMode("register"); setAuthError(null); }} style={{ color: teal, fontWeight: 600, cursor: "pointer" }}>{t.signUp}</span>
               </p>
             </>
           ) : (
@@ -286,14 +372,15 @@ export default function LoginPage() {
                   <span>{t.agreeTerms} <a href="#" style={{ color: teal, fontWeight: 600 }}>{t.termsLink}</a> {t.andText} <a href="#" style={{ color: teal, fontWeight: 600 }}>{t.privacyLink}</a></span>
                 </label>
                 {errors.agree && <div style={{ marginTop: -14, marginBottom: 14 }}><FieldError text={t.mustAgree} /></div>}
+                {authError && <div style={{ marginBottom: 14 }}><FieldError text={authError} /></div>}
 
-                <button type="submit" className="btn" style={{ width: "100%", background: gold, color: "#1F2937", borderRadius: 12, padding: "13px", fontWeight: 600, fontSize: 15 }}>
+                <button type="submit" disabled={submitting} className="btn" style={{ width: "100%", background: gold, color: "#1F2937", borderRadius: 12, padding: "13px", fontWeight: 600, fontSize: 15, opacity: submitting ? 0.7 : 1 }}>
                   {t.register}
                 </button>
               </form>
 
               <p style={{ textAlign: "center", fontSize: 13.5, color: textMuted, marginTop: 22 }}>
-                {t.haveAccount} <span onClick={() => setMode("login")} style={{ color: teal, fontWeight: 600, cursor: "pointer" }}>{t.signIn}</span>
+                {t.haveAccount} <span onClick={() => { setMode("login"); setAuthError(null); }} style={{ color: teal, fontWeight: 600, cursor: "pointer" }}>{t.signIn}</span>
               </p>
             </>
           )}

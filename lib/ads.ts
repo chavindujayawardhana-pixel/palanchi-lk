@@ -3,6 +3,8 @@ import type { Period, Condition } from "./data";
 
 const PLACEHOLDER_IMAGE = "https://picsum.photos/seed/placeholder/900/650";
 
+export type AdStatus = "pending" | "approved" | "rejected" | "suspended";
+
 export interface CategoryName {
   en: string;
   si: string;
@@ -27,6 +29,7 @@ export interface LiveAd {
   email: string | null;
   address: string | null;
   mapLink: string | null;
+  status: AdStatus;
   featured: boolean;
   createdAt: string;
   images: string[];
@@ -34,7 +37,7 @@ export interface LiveAd {
 
 const AD_SELECT = `
   id, title, description, category_id, district, town, price, rental_period, quantity,
-  condition, contact_name, phone, whatsapp, email, address, map_link, featured, created_at,
+  condition, contact_name, phone, whatsapp, email, address, map_link, status, featured, created_at,
   categories ( name_en, name_si, name_ta ),
   advertisement_images ( image_url, is_cover, sort_order )
 `;
@@ -56,6 +59,7 @@ interface AdRow {
   email: string | null;
   address: string | null;
   map_link: string | null;
+  status: AdStatus;
   featured: boolean;
   created_at: string;
   categories: { name_en: string; name_si: string; name_ta: string } | null;
@@ -88,6 +92,7 @@ function mapRow(row: AdRow): LiveAd {
     email: row.email,
     address: row.address,
     mapLink: row.map_link,
+    status: row.status,
     featured: row.featured,
     createdAt: row.created_at,
     images: images.length ? images : [PLACEHOLDER_IMAGE],
@@ -113,4 +118,15 @@ export async function fetchAdById(id: string): Promise<LiveAd | null> {
     .maybeSingle();
   if (error || !data) return null;
   return mapRow(data as unknown as AdRow);
+}
+
+/** All of the given user's own ads, any status — powers the "My Ads" page. */
+export async function fetchMyAds(userId: string): Promise<LiveAd[]> {
+  const { data, error } = await supabase
+    .from("advertisements")
+    .select(AD_SELECT)
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  if (error || !data) return [];
+  return (data as unknown as AdRow[]).map(mapRow);
 }

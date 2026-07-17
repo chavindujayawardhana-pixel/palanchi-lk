@@ -14,6 +14,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { useTheme } from "@/components/ThemeProvider";
 import { fmt } from "@/lib/format";
+import type { AdStatus } from "@/lib/ads";
 
 const dict = {
   en: {
@@ -74,8 +75,6 @@ const dict = {
     passwordLabel: "கடவுச்சொல்", passwordPh: "கடவுச்சொல்லை உள்ளிடவும்", loginBtn: "உள்நுழை", wrongPassword: "தவறான கடவுச்சொல்",
   },
 };
-
-type AdStatus = "pending" | "approved" | "rejected" | "suspended";
 
 interface AdminAd {
   id: string;

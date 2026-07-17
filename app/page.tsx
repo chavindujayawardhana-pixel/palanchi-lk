@@ -10,10 +10,10 @@ import {
   ShieldCheck,
   BadgeCheck,
   ArrowRight,
-  Plus,
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
+import { AuthNav } from "@/components/AuthNav";
 import { CATEGORIES, DISTRICTS, REVIEWS, type Period } from "@/lib/data";
 import { fetchApprovedAds, type LiveAd } from "@/lib/ads";
 import { fmt } from "@/lib/format";
@@ -22,7 +22,6 @@ import type { Lang } from "@/lib/i18n";
 const dict = {
   en: {
     navHome: "Home", navCreate: "Create ad", navContact: "Contact",
-    login: "Log in", register: "Register",
     heroTitle: "Rent anything, from anyone, anywhere in Sri Lanka",
     heroSub: "Scaffolding, machinery, vehicles and tools — find gear near you or list what you own.",
     searchPlaceholder: "What are you looking for? e.g. Generator, Backhoe...",
@@ -44,7 +43,6 @@ const dict = {
   },
   si: {
     navHome: "මුල් පිටුව", navCreate: "දැන්වීමක් පළ කරන්න", navContact: "අමතන්න",
-    login: "පිවිසෙන්න", register: "ලියාපදිංචි වන්න",
     heroTitle: "ශ්‍රී ලංකාව පුරා ඕනෑම දෙයක් කුලියට ගන්න",
     heroSub: "ස්කැෆෝල්ඩිං, යන්ත්‍රෝපකරණ, වාහන සහ මෙවලම් — ඔබ අසල සොයන්න හෝ ඔබේ දේ ලැයිස්තුගත කරන්න.",
     searchPlaceholder: "ඔබ සොයන්නේ කුමක්ද? උදා: ජනරේටරය, බැක්හෝ...",
@@ -66,7 +64,6 @@ const dict = {
   },
   ta: {
     navHome: "முகப்பு", navCreate: "விளம்பரம் இடு", navContact: "தொடர்பு",
-    login: "உள்நுழை", register: "பதிவு செய்க",
     heroTitle: "இலங்கை முழுவதும் எதையும் யாரிடமிருந்தும் வாடகைக்கு பெறுங்கள்",
     heroSub: "ஸ்கஃபோல்டிங், இயந்திரங்கள், வாகனங்கள் மற்றும் கருவிகள் — உங்களுக்கு அருகில் தேடுங்கள் அல்லது உங்களுடையதை பட்டியலிடுங்கள்.",
     searchPlaceholder: "நீங்கள் தேடுவது என்ன? உதா: ஜெனரேட்டர், பேக்ஹோ...",
@@ -92,7 +89,6 @@ type HomeDict = (typeof dict)[Lang];
 
 export default function HomePage() {
   const { lang, dark, colors } = useTheme();
-  const [menuModal, setMenuModal] = useState(false);
   const [query, setQuery] = useState("");
   const [district, setDistrict] = useState("");
   const [ads, setAds] = useState<LiveAd[]>([]);
@@ -132,27 +128,10 @@ export default function HomePage() {
         darkIcon={17}
         links={[
           { label: t.navHome, href: "/" },
-          { label: t.navCreate, onClick: () => setMenuModal(true) },
+          { label: t.navCreate, href: "/create-ad" },
           { label: t.navContact, href: "/contact" },
         ]}
-        right={
-          <>
-            <Link
-              href="/login"
-              className="btn desktop-nav"
-              style={{ background: "transparent", color: text, border: `1px solid ${border}`, borderRadius: 10, padding: "9px 16px", fontSize: 14, fontWeight: 500, textDecoration: "none" }}
-            >
-              {t.login}
-            </Link>
-            <Link
-              href="/login"
-              className="btn desktop-nav"
-              style={{ background: gold, color: "#1F2937", borderRadius: 10, padding: "9px 16px", fontSize: 14, fontWeight: 600, textDecoration: "none" }}
-            >
-              {t.register}
-            </Link>
-          </>
-        }
+        right={<AuthNav />}
       />
 
       {/* HERO */}
@@ -263,27 +242,6 @@ export default function HomePage() {
           <span>{t.madeBy}</span>
         </div>
       </footer>
-
-      {/* CREATE AD MODAL */}
-      {menuModal && (
-        <div onClick={() => setMenuModal(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: 20 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: surface, borderRadius: 20, padding: 32, maxWidth: 420, width: "100%", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
-            <div style={{ width: 46, height: 46, borderRadius: 12, background: dark ? "#233038" : "#FFF7E0", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
-              <Plus size={22} color={gold} />
-            </div>
-            <h3 className="disp" style={{ fontSize: 19, fontWeight: 600, margin: "0 0 10px" }}>{t.navCreate}</h3>
-            <p style={{ fontSize: 14.5, color: textMuted, lineHeight: 1.6, margin: "0 0 24px" }}>
-              You can publish an advertisement without creating an account. If you login or register, you can edit and manage your advertisements later.
-            </p>
-            <Link href="/login" className="btn" style={{ display: "block", textAlign: "center", width: "100%", background: gold, color: "#1F2937", borderRadius: 12, padding: "13px", fontWeight: 600, fontSize: 15, marginBottom: 10, textDecoration: "none" }}>
-              {t.login} & manage ads
-            </Link>
-            <Link href="/create-ad" className="btn" style={{ display: "block", textAlign: "center", width: "100%", background: "transparent", border: `1px solid ${border}`, color: text, borderRadius: 12, padding: "13px", fontWeight: 500, fontSize: 15, textDecoration: "none" }}>
-              Continue without registration
-            </Link>
-          </div>
-        </div>
-      )}
 
       <style>{`@media (max-width: 860px) { .footer-grid { grid-template-columns: 1fr 1fr !important; } }`}</style>
     </div>

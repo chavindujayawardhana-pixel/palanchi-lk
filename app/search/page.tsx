@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Search, MapPin, SlidersHorizontal, ArrowUpDown } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
+import { AuthNav } from "@/components/AuthNav";
 import { DISTRICTS, TOWNS, type Period } from "@/lib/data";
 import { fetchApprovedAds, type LiveAd } from "@/lib/ads";
 import { useCategories } from "@/lib/categories";
@@ -115,9 +116,12 @@ export default function SearchPage() {
           </div>
         }
         right={
-          <Link href="/create-ad" className="btn" style={{ background: gold, color: "#1F2937", borderRadius: 10, padding: "9px 16px", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
-            {t.navCreate}
-          </Link>
+          <>
+            <Link href="/create-ad" className="btn" style={{ background: gold, color: "#1F2937", borderRadius: 10, padding: "9px 16px", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+              {t.navCreate}
+            </Link>
+            <AuthNav />
+          </>
         }
       />
 
