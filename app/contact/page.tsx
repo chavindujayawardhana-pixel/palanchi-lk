@@ -16,7 +16,7 @@ const dict = {
   en: {
     navCreate: "Create ad",
     pageTitle: "Get in touch", pageSub: "Questions, feedback, or need help with a listing? We're here for you.",
-    callUs: "Call us", whatsapp: "WhatsApp", emailUs: "Email us",
+    callUs: "Call us", whatsapp: "WhatsApp", emailUs: "Email us", visitUs: "Visit us", comingSoon: "Coming soon",
     hours: "Working hours", hoursValue: "Always Open",
     formTitle: "Send us a message", name: "Your name", namePh: "Full name",
     email: "Email", emailPh: "you@example.com", subject: "Subject", subjectPh: "How can we help?",
@@ -36,7 +36,7 @@ const dict = {
   si: {
     navCreate: "දැන්වීමක් පළ කරන්න",
     pageTitle: "අප හා සම්බන්ධ වන්න", pageSub: "ප්‍රශ්න, අදහස්, හෝ දැන්වීමක් සම්බන්ධව උදව් අවශ්‍යද? අපි ඔබ වෙනුවෙන් මෙහි සිටිමු.",
-    callUs: "අමතන්න", whatsapp: "WhatsApp", emailUs: "විද්‍යුත් තැපෑල",
+    callUs: "අමතන්න", whatsapp: "WhatsApp", emailUs: "විද්‍යුත් තැපෑල", visitUs: "අප වෙත පැමිණෙන්න", comingSoon: "ඉක්මනින්",
     hours: "වැඩ කරන වේලාවන්", hoursValue: "සැමවිටම විවෘතයි",
     formTitle: "අපට පණිවිඩයක් එවන්න", name: "ඔබේ නම", namePh: "සම්පූර්ණ නම",
     email: "විද්‍යුත් තැපෑල", emailPh: "you@example.com", subject: "විෂය", subjectPh: "අපට කෙසේ උදව් කළ හැකිද?",
@@ -56,7 +56,7 @@ const dict = {
   ta: {
     navCreate: "விளம்பரம் இடு",
     pageTitle: "எங்களை தொடர்பு கொள்ளுங்கள்", pageSub: "கேள்விகள், கருத்துகள், அல்லது பட்டியலில் உதவி தேவையா? நாங்கள் இங்கே இருக்கிறோம்.",
-    callUs: "எங்களை அழைக்கவும்", whatsapp: "WhatsApp", emailUs: "மின்னஞ்சல் அனுப்பவும்",
+    callUs: "எங்களை அழைக்கவும்", whatsapp: "WhatsApp", emailUs: "மின்னஞ்சல் அனுப்பவும்", visitUs: "எங்களை பார்வையிடவும்", comingSoon: "விரைவில்",
     hours: "வேலை நேரம்", hoursValue: "எப்போதும் திறந்திருக்கும்",
     formTitle: "எங்களுக்கு செய்தி அனுப்பவும்", name: "உங்கள் பெயர்", namePh: "முழு பெயர்",
     email: "மின்னஞ்சல்", emailPh: "you@example.com", subject: "பொருள்", subjectPh: "நாங்கள் எப்படி உதவ முடியும்?",
@@ -123,9 +123,10 @@ export default function ContactPage() {
   }
 
   const contactCards = [
-    { Icon: Phone, label: t.callUs, value: "+94 11 234 5678" },
-    { Icon: MessageCircle, label: t.whatsapp, value: "+94 77 123 4567" },
-    { Icon: Mail, label: t.emailUs, value: "hello@palanchi.lk" },
+    { Icon: Phone, label: t.callUs },
+    { Icon: MessageCircle, label: t.whatsapp },
+    { Icon: Mail, label: t.emailUs },
+    { Icon: MapPin, label: t.visitUs },
   ];
 
   return (
@@ -156,7 +157,7 @@ export default function ContactPage() {
                 <c.Icon size={19} color={gold} />
               </div>
               <div style={{ fontSize: 12.5, color: textMuted, marginBottom: 4 }}>{c.label}</div>
-              <div style={{ fontSize: 14.5, fontWeight: 600 }}>{c.value}</div>
+              <div style={{ fontSize: 14.5, fontWeight: 500, fontStyle: "italic", color: textMuted }}>{t.comingSoon}</div>
             </div>
           ))}
         </div>
