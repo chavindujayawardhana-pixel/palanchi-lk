@@ -7,7 +7,8 @@ import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
 import { useAuth } from "@/components/AuthProvider";
 import { AuthNav } from "@/components/AuthNav";
-import { DISTRICTS, TOWNS } from "@/lib/data";
+import { DistrictField } from "@/components/DistrictField";
+import { TownField } from "@/components/TownField";
 import { danger } from "@/lib/theme";
 import { supabase } from "@/lib/supabase";
 
@@ -330,18 +331,12 @@ export default function CreateAdPage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 18 }} className="grid2">
             <div>
               <label style={labelStyle}>{t.district} *</label>
-              <select value={form.district} onChange={(e) => { update("district", e.target.value); update("town", ""); }} style={fieldStyle(errors.district)}>
-                <option value="">{t.selectDistrict}</option>
-                {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
-              </select>
+              <DistrictField value={form.district} onChange={(v) => { update("district", v); update("town", ""); }} placeholder={t.selectDistrict} inputStyle={fieldStyle(errors.district)} />
               {errors.district && <FieldError text={t.required} />}
             </div>
             <div>
               <label style={labelStyle}>{t.town} *</label>
-              <select value={form.town} onChange={(e) => update("town", e.target.value)} disabled={!form.district} style={{ ...fieldStyle(errors.town), opacity: form.district ? 1 : 0.5 }}>
-                <option value="">{t.selectTown}</option>
-                {(TOWNS[form.district] || []).map((tn) => <option key={tn} value={tn}>{tn}</option>)}
-              </select>
+              <TownField district={form.district} value={form.town} onChange={(v) => update("town", v)} placeholder={t.selectTown} disabled={!form.district} inputStyle={{ ...fieldStyle(errors.town), opacity: form.district ? 1 : 0.5 }} />
               {errors.town && <FieldError text={t.required} />}
             </div>
           </div>

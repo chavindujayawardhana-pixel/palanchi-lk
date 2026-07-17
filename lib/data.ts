@@ -46,20 +46,13 @@ export const AD_CATEGORIES: Record<Lang, string[]> = {
   ta: ["ஸ்கஃபோல்டிங்", "கட்டுமான உபகரணங்கள்", "ஜெனரேட்டர்கள்", "மின் கருவிகள்", "அகழ்வாராய்ச்சி", "பேக்ஹோ", "ஃபோர்க்லிஃப்ட்", "ரோலர்", "கொள்கலன்கள்", "வாகனங்கள்", "விவசாய உபகரணங்கள்", "மின் உபகரணங்கள்", "நிகழ்வு உபகரணங்கள்", "மற்றவை"],
 };
 
-export const DISTRICTS = ["Colombo", "Gampaha", "Kandy", "Galle", "Matara", "Kurunegala", "Jaffna", "Anuradhapura", "Ratnapura", "Badulla"];
-
-export const TOWNS: Record<string, string[]> = {
-  Colombo: ["Colombo 01", "Kaduwela", "Nugegoda", "Homagama", "Maharagama"],
-  Gampaha: ["Negombo", "Ja-Ela", "Wattala", "Gampaha Town", "Minuwangoda"],
-  Kandy: ["Kandy Town", "Peradeniya", "Gampola", "Katugastota"],
-  Galle: ["Galle Town", "Hikkaduwa", "Ambalangoda"],
-  Matara: ["Matara Town", "Weligama", "Akuressa"],
-  Kurunegala: ["Kurunegala Town", "Kuliyapitiya", "Narammala"],
-  Jaffna: ["Jaffna Town", "Chavakachcheri", "Point Pedro"],
-  Anuradhapura: ["Anuradhapura Town", "Kekirawa"],
-  Ratnapura: ["Ratnapura Town", "Balangoda"],
-  Badulla: ["Badulla Town", "Bandarawela"],
-};
+/** All 25 Sri Lankan districts. GN-division-level town data lives in lib/data/gn-divisions.json (server-only — see app/api/locations/towns). */
+export const DISTRICTS = [
+  "Ampara", "Anuradhapura", "Badulla", "Batticaloa", "Colombo", "Galle", "Gampaha", "Hambantota",
+  "Jaffna", "Kalutara", "Kandy", "Kegalle", "Kilinochchi", "Kurunegala", "Mannar", "Matale",
+  "Matara", "Moneragala", "Mullaitivu", "Nuwara Eliya", "Polonnaruwa", "Puttalam", "Ratnapura",
+  "Trincomalee", "Vavuniya",
+];
 
 export interface Ad {
   id: number;

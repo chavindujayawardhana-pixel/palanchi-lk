@@ -6,8 +6,9 @@ import { Mail, Lock, User, Phone, Eye, EyeOff, MapPin, CheckCircle2 } from "luci
 import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
 import { useAuth } from "@/components/AuthProvider";
+import { DistrictField } from "@/components/DistrictField";
+import { TownField } from "@/components/TownField";
 import { supabase } from "@/lib/supabase";
-import { DISTRICTS, TOWNS } from "@/lib/data";
 import { danger } from "@/lib/theme";
 
 const dict = {
@@ -325,20 +326,14 @@ function LoginPageInner() {
                   <div>
                     <label style={labelStyle}>{t.district}</label>
                     <div style={{ position: "relative" }}>
-                      <MapPin size={16} color={textMuted} style={iconStyle} />
-                      <select value={reg.district} onChange={(e) => setReg({ ...reg, district: e.target.value, town: "" })} style={fieldStyle(errors.district)}>
-                        <option value="">{t.selectDistrict}</option>
-                        {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
-                      </select>
+                      <MapPin size={16} color={textMuted} style={{ ...iconStyle, zIndex: 2 }} />
+                      <DistrictField value={reg.district} onChange={(v) => setReg({ ...reg, district: v, town: "" })} placeholder={t.selectDistrict} inputStyle={fieldStyle(errors.district)} />
                     </div>
                     {errors.district && <FieldError text={t.required} />}
                   </div>
                   <div>
                     <label style={labelStyle}>{t.town}</label>
-                    <select value={reg.town} onChange={(e) => setReg({ ...reg, town: e.target.value })} disabled={!reg.district} style={{ ...fieldStyle(errors.town), paddingLeft: 13, opacity: reg.district ? 1 : 0.5 }}>
-                      <option value="">{t.selectTown}</option>
-                      {(TOWNS[reg.district] || []).map((tn) => <option key={tn} value={tn}>{tn}</option>)}
-                    </select>
+                    <TownField district={reg.district} value={reg.town} onChange={(v) => setReg({ ...reg, town: v })} placeholder={t.selectTown} disabled={!reg.district} inputStyle={{ ...fieldStyle(errors.town), paddingLeft: 13, opacity: reg.district ? 1 : 0.5 }} />
                     {errors.town && <FieldError text={t.required} />}
                   </div>
                 </div>

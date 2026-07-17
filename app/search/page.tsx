@@ -6,7 +6,9 @@ import { Search, MapPin, SlidersHorizontal, ArrowUpDown } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
 import { AuthNav } from "@/components/AuthNav";
-import { DISTRICTS, TOWNS, type Period } from "@/lib/data";
+import { DistrictField } from "@/components/DistrictField";
+import { TownField } from "@/components/TownField";
+import { type Period } from "@/lib/data";
 import { fetchApprovedAds, type LiveAd } from "@/lib/ads";
 import { useCategories } from "@/lib/categories";
 import { fmt } from "@/lib/format";
@@ -157,16 +159,14 @@ export default function SearchPage() {
             </select>
 
             <label style={labelStyle}>{t.district}</label>
-            <select value={district} onChange={(e) => { setDistrict(e.target.value); setTown(""); }} style={{ ...fieldStyle, marginBottom: 16 }}>
-              <option value="">{t.allDistricts}</option>
-              {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
-            </select>
+            <div style={{ marginBottom: 16 }}>
+              <DistrictField value={district} onChange={(v) => { setDistrict(v); setTown(""); }} placeholder={t.allDistricts} inputStyle={fieldStyle} />
+            </div>
 
             <label style={labelStyle}>{t.town}</label>
-            <select value={town} onChange={(e) => setTown(e.target.value)} disabled={!district} style={{ ...fieldStyle, marginBottom: 16, opacity: district ? 1 : 0.5 }}>
-              <option value="">{t.allTowns}</option>
-              {(TOWNS[district] || []).map((tn) => <option key={tn} value={tn}>{tn}</option>)}
-            </select>
+            <div style={{ marginBottom: 16 }}>
+              <TownField district={district} value={town} onChange={setTown} placeholder={t.allTowns} disabled={!district} inputStyle={{ ...fieldStyle, opacity: district ? 1 : 0.5 }} />
+            </div>
 
             <label style={labelStyle}>{t.minPrice}</label>
             <input type="number" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="0" style={{ ...fieldStyle, marginBottom: 16 }} />
