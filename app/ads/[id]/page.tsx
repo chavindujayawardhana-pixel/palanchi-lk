@@ -13,7 +13,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { AuthNav } from "@/components/AuthNav";
 import { type Period } from "@/lib/data";
 import { fetchAdById, fetchApprovedAds, type LiveAd } from "@/lib/ads";
-import { fmt } from "@/lib/format";
+import { fmt, toWhatsAppNumber } from "@/lib/format";
 import type { Lang } from "@/lib/i18n";
 
 const dict = {
@@ -222,7 +222,7 @@ export default function AdDetailPage() {
               <Phone size={16} /> {t.call} · {ad.phone}
             </a>
             {ad.whatsapp && (
-              <a href={`https://wa.me/${ad.whatsapp.replace(/[^0-9]/g, "")}`} className="btn" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", background: "#25D366", color: "#fff", borderRadius: 12, padding: "12px", fontWeight: 600, fontSize: 14.5, marginBottom: 10, textDecoration: "none" }}>
+              <a href={`https://wa.me/${toWhatsAppNumber(ad.whatsapp)}`} className="btn" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", background: "#25D366", color: "#fff", borderRadius: 12, padding: "12px", fontWeight: 600, fontSize: 14.5, marginBottom: 10, textDecoration: "none" }}>
                 <MessageCircle size={16} /> {t.whatsapp}
               </a>
             )}
