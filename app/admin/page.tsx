@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   LayoutDashboard, FileText, Users, Tag, Settings, LogOut, Search, Check, X,
-  Trash2, Star, Ban, Clock, CheckCircle2, XCircle, Sparkles, Menu,
+  Trash2, Star, Ban, Clock, CheckCircle2, XCircle, Sparkles, Menu, Eye, ImageOff,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -28,13 +28,16 @@ const dict = {
     approve: "Approve", reject: "Reject", deleteA: "Delete", suspend: "Suspend", feature: "Feature", unfeature: "Unfeature",
     searchPh: "Search ads or users...",
     manageAds: "Manage advertisements", manageUsers: "Manage users", manageCategories: "Manage categories",
-    listing: "Listing", user: "User", category: "Category", price: "Price", date: "Date",
+    listing: "Listing", user: "User", category: "Category", location: "Location", price: "Price", date: "Date",
     confirmDelete: "Delete this listing? This cannot be undone.", cancel: "Cancel", confirm: "Confirm",
     addCategory: "Add category", categoryName: "Category name", adCount: "Ads",
     adminPanel: "ADMIN PANEL", nameCol: "Name", emailCol: "Email", townCol: "Town",
     settingsPlaceholder: "Settings — prototype placeholder",
     adminLoginTitle: "Admin sign in", adminLoginSub: "Enter the admin password to manage Palanchi.lk.",
     passwordLabel: "Password", passwordPh: "Enter password", loginBtn: "Sign in", wrongPassword: "Incorrect password",
+    view: "View", noPhotos: "No photos", quantity: "Quantity", condition: "Condition", condNew: "New", condUsed: "Used",
+    description: "Description", contactDetails: "Contact details", contactName: "Contact name", phone: "Phone",
+    whatsapp: "WhatsApp", email: "Email", close: "Close",
   },
   si: {
     dashboard: "ඩෑෂ්බෝඩ්", ads: "දැන්වීම්", usersNav: "පරිශීලකයන්", categoriesNav: "කාණ්ඩ", settingsNav: "සැකසුම්", logout: "ඉවත් වන්න",
@@ -47,13 +50,16 @@ const dict = {
     approve: "අනුමත කරන්න", reject: "ප්‍රතික්ෂේප කරන්න", deleteA: "මකන්න", suspend: "අත්හිටුවන්න", feature: "විශේෂාංගිත කරන්න", unfeature: "විශේෂාංග ඉවත් කරන්න",
     searchPh: "දැන්වීම් හෝ පරිශීලකයන් සොයන්න...",
     manageAds: "දැන්වීම් කළමනාකරණය", manageUsers: "පරිශීලකයන් කළමනාකරණය", manageCategories: "කාණ්ඩ කළමනාකරණය",
-    listing: "දැන්වීම", user: "පරිශීලකයා", category: "කාණ්ඩය", price: "මිල", date: "දිනය",
+    listing: "දැන්වීම", user: "පරිශීලකයා", category: "කාණ්ඩය", location: "ස්ථානය", price: "මිල", date: "දිනය",
     confirmDelete: "මෙම දැන්වීම මකන්නද? මෙය අහෝසි කළ නොහැක.", cancel: "අවලංගු කරන්න", confirm: "තහවුරු කරන්න",
     addCategory: "කාණ්ඩයක් එකතු කරන්න", categoryName: "කාණ්ඩයේ නම", adCount: "දැන්වීම්",
     adminPanel: "පරිපාලක පැනලය", nameCol: "නම", emailCol: "විද්‍යුත් තැපෑල", townCol: "නගරය",
     settingsPlaceholder: "සැකසුම් — මූලාකෘති ස්ථානගත කරන්නා",
     adminLoginTitle: "පරිපාලක පිවිසුම", adminLoginSub: "Palanchi.lk කළමනාකරණය කිරීමට පරිපාලක මුරපදය ඇතුළත් කරන්න.",
     passwordLabel: "මුරපදය", passwordPh: "මුරපදය ඇතුළත් කරන්න", loginBtn: "පිවිසෙන්න", wrongPassword: "වැරදි මුරපදයකි",
+    view: "බලන්න", noPhotos: "ඡායාරූප නැත", quantity: "ප්‍රමාණය", condition: "තත්ත්වය", condNew: "අලුත්", condUsed: "පරණ",
+    description: "විස්තරය", contactDetails: "සම්බන්ධතා විස්තර", contactName: "සම්බන්ධතා නම", phone: "දුරකථනය",
+    whatsapp: "WhatsApp", email: "විද්‍යුත් තැපෑල", close: "වසන්න",
   },
   ta: {
     dashboard: "டாஷ்போர்டு", ads: "விளம்பரங்கள்", usersNav: "பயனர்கள்", categoriesNav: "வகைகள்", settingsNav: "அமைப்புகள்", logout: "வெளியேறு",
@@ -66,48 +72,85 @@ const dict = {
     approve: "அங்கீகரி", reject: "நிராகரி", deleteA: "நீக்கு", suspend: "இடைநிறுத்து", feature: "சிறப்பித்து காட்டு", unfeature: "சிறப்பை நீக்கு",
     searchPh: "விளம்பரங்கள் அல்லது பயனர்களை தேடுங்கள்...",
     manageAds: "விளம்பரங்களை நிர்வகி", manageUsers: "பயனர்களை நிர்வகி", manageCategories: "வகைகளை நிர்வகி",
-    listing: "பட்டியல்", user: "பயனர்", category: "வகை", price: "விலை", date: "தேதி",
+    listing: "பட்டியல்", user: "பயனர்", category: "வகை", location: "இடம்", price: "விலை", date: "தேதி",
     confirmDelete: "இந்த பட்டியலை நீக்கவா? இதை மீட்டெடுக்க முடியாது.", cancel: "ரத்து செய்", confirm: "உறுதிப்படுத்து",
     addCategory: "வகையைச் சேர்", categoryName: "வகையின் பெயர்", adCount: "விளம்பரங்கள்",
     adminPanel: "நிர்வாக பலகம்", nameCol: "பெயர்", emailCol: "மின்னஞ்சல்", townCol: "நகரம்",
     settingsPlaceholder: "அமைப்புகள் — மாதிரி ஒதுக்கிடம்",
     adminLoginTitle: "நிர்வாக உள்நுழைவு", adminLoginSub: "Palanchi.lk ஐ நிர்வகிக்க நிர்வாக கடவுச்சொல்லை உள்ளிடவும்.",
     passwordLabel: "கடவுச்சொல்", passwordPh: "கடவுச்சொல்லை உள்ளிடவும்", loginBtn: "உள்நுழை", wrongPassword: "தவறான கடவுச்சொல்",
+    view: "பார்வை", noPhotos: "புகைப்படங்கள் இல்லை", quantity: "அளவு", condition: "நிலை", condNew: "புதியது", condUsed: "பழையது",
+    description: "விளக்கம்", contactDetails: "தொடர்பு விவரங்கள்", contactName: "தொடர்பு பெயர்", phone: "தொலைபேசி",
+    whatsapp: "WhatsApp", email: "மின்னஞ்சல்", close: "மூடு",
   },
 };
 
 interface AdminAd {
   id: string;
   title: string;
+  description: string;
   user: string;
+  phone: string;
+  whatsapp: string | null;
+  email: string | null;
+  district: string;
+  town: string;
   categoryName: { name_en: string; name_si: string; name_ta: string } | null;
   price: number;
+  period: string;
+  quantity: number;
+  condition: string;
   date: string;
   status: AdStatus;
   featured: boolean;
+  images: string[];
 }
 
 interface AdminAdRow {
   id: string;
   title: string;
+  description: string | null;
   contact_name: string;
+  phone: string;
+  whatsapp: string | null;
+  email: string | null;
+  district: string;
+  town: string;
   price: number;
+  rental_period: string;
+  quantity: number;
+  condition: string;
   status: AdStatus;
   featured: boolean;
   created_at: string;
   categories: { name_en: string; name_si: string; name_ta: string } | null;
+  advertisement_images: { image_url: string; is_cover: boolean; sort_order: number }[] | null;
 }
 
 function mapAdminAdRow(row: AdminAdRow): AdminAd {
+  const images = (row.advertisement_images ?? [])
+    .slice()
+    .sort((a, b) => (a.is_cover === b.is_cover ? a.sort_order - b.sort_order : a.is_cover ? -1 : 1))
+    .map((img) => img.image_url);
   return {
     id: row.id,
     title: row.title,
+    description: row.description ?? "",
     user: row.contact_name,
+    phone: row.phone,
+    whatsapp: row.whatsapp,
+    email: row.email,
+    district: row.district,
+    town: row.town,
     categoryName: row.categories,
     price: Number(row.price),
+    period: row.rental_period,
+    quantity: row.quantity,
+    condition: row.condition,
     date: row.created_at.slice(0, 10),
     status: row.status,
     featured: row.featured,
+    images,
   };
 }
 
@@ -137,6 +180,7 @@ export default function AdminPage() {
   const [ads, setAds] = useState<AdminAd[]>([]);
   const [search, setSearch] = useState("");
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [viewAd, setViewAd] = useState<AdminAd | null>(null);
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState(false);
@@ -411,10 +455,10 @@ export default function AdminPage() {
               <h1 className="disp" style={{ fontSize: 24, fontWeight: 700, margin: "0 0 18px" }}>{t.manageAds}</h1>
               <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 16, overflow: "hidden" }}>
                 <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, minWidth: 720 }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, minWidth: 820 }}>
                     <thead>
                       <tr style={{ borderBottom: `1px solid ${border}` }}>
-                        {[t.listing, t.user, t.category, t.price, t.status, t.actions].map((h, i) => (
+                        {["", t.listing, t.user, t.category, t.location, t.price, t.status, t.actions].map((h, i) => (
                           <th key={i} style={{ textAlign: "left", padding: "12px 16px", fontSize: 11.5, fontWeight: 600, color: textMuted, letterSpacing: 0.3 }}>{h.toUpperCase()}</th>
                         ))}
                       </tr>
@@ -424,17 +468,28 @@ export default function AdminPage() {
                         const s = statusStyle(a.status);
                         return (
                           <tr key={a.id} className="row-hover" style={{ borderBottom: `1px solid ${border}` }}>
+                            <td style={{ padding: "8px 16px" }}>
+                              {a.images.length > 0 ? (
+                                <img src={a.images[0]} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: "cover", display: "block" }} />
+                              ) : (
+                                <div style={{ width: 40, height: 40, borderRadius: 8, background: dark ? "#22242A" : "#EDEDED", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                  <ImageOff size={16} color={textMuted} />
+                                </div>
+                              )}
+                            </td>
                             <td style={{ padding: "12px 16px", fontWeight: 500 }}>
                               {a.title} {a.featured && <Star size={12} color={gold} fill={gold} style={{ marginLeft: 4, verticalAlign: -1 }} />}
                             </td>
                             <td style={{ padding: "12px 16px", color: textMuted }}>{a.user}</td>
                             <td style={{ padding: "12px 16px", color: textMuted }}>{a.categoryName ? a.categoryName[`name_${lang}`] : "—"}</td>
+                            <td style={{ padding: "12px 16px", color: textMuted }}>{a.town}, {a.district}</td>
                             <td className="mono" style={{ padding: "12px 16px" }}>Rs {fmt(a.price)}</td>
                             <td style={{ padding: "12px 16px" }}>
                               <span style={{ fontSize: 10.5, fontWeight: 600, padding: "4px 9px", borderRadius: 8, background: s.bg, color: s.fg }}>{t[a.status]}</span>
                             </td>
                             <td style={{ padding: "12px 16px" }}>
                               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                                <IconBtn title={t.view} onClick={() => setViewAd(a)} color={teal} Icon={Eye} border={border} />
                                 {a.status !== "approved" && (
                                   <IconBtn title={t.approve} onClick={() => setStatus(a.id, "approved")} color={success} Icon={Check} border={border} />
                                 )}
@@ -527,6 +582,60 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+
+      {viewAd && (
+        <div onClick={() => setViewAd(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 110, padding: 20 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: surface, borderRadius: 18, padding: 28, maxWidth: 640, width: "100%", maxHeight: "85vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 18 }}>
+              <div>
+                <div className="disp" style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>
+                  {viewAd.title} {viewAd.featured && <Star size={14} color={gold} fill={gold} style={{ marginLeft: 6, verticalAlign: -1 }} />}
+                </div>
+                <span style={{ fontSize: 10.5, fontWeight: 600, padding: "4px 9px", borderRadius: 8, background: statusStyle(viewAd.status).bg, color: statusStyle(viewAd.status).fg }}>{t[viewAd.status]}</span>
+              </div>
+              <button type="button" onClick={() => setViewAd(null)} className="btn" style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${border}`, background: "transparent", display: "flex", alignItems: "center", justifyContent: "center", color: text, flexShrink: 0 }}>
+                <X size={15} />
+              </button>
+            </div>
+
+            {viewAd.images.length > 0 ? (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(100px,1fr))", gap: 8, marginBottom: 20 }}>
+                {viewAd.images.map((src, i) => (
+                  <img key={i} src={src} alt="" style={{ width: "100%", height: 90, objectFit: "cover", borderRadius: 10, display: "block" }} />
+                ))}
+              </div>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, background: dark ? "#22242A" : "#EDEDED", color: textMuted, borderRadius: 10, padding: "14px 16px", fontSize: 13, marginBottom: 20 }}>
+                <ImageOff size={16} /> {t.noPhotos}
+              </div>
+            )}
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
+              <DetailItem label={t.category} value={viewAd.categoryName ? viewAd.categoryName[`name_${lang}`] : "—"} />
+              <DetailItem label={t.price} value={`Rs ${fmt(viewAd.price)}`} />
+              <DetailItem label={t.location} value={`${viewAd.town}, ${viewAd.district}`} />
+              <DetailItem label={t.quantity} value={viewAd.quantity} />
+              <DetailItem label={t.condition} value={viewAd.condition === "new" ? t.condNew : t.condUsed} />
+              <DetailItem label={t.date} value={viewAd.date} />
+            </div>
+
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 11.5, fontWeight: 600, color: textMuted, marginBottom: 6, letterSpacing: 0.3 }}>{t.description.toUpperCase()}</div>
+              <p style={{ fontSize: 14, lineHeight: 1.6, margin: 0 }}>{viewAd.description || "—"}</p>
+            </div>
+
+            <div style={{ height: 1, background: border, margin: "18px 0" }} />
+
+            <div style={{ fontSize: 11.5, fontWeight: 600, color: textMuted, marginBottom: 12, letterSpacing: 0.3 }}>{t.contactDetails.toUpperCase()}</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+              <DetailItem label={t.contactName} value={viewAd.user} />
+              <DetailItem label={t.phone} value={viewAd.phone} />
+              {viewAd.whatsapp && <DetailItem label={t.whatsapp} value={viewAd.whatsapp} />}
+              {viewAd.email && <DetailItem label={t.email} value={viewAd.email} />}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -540,6 +649,16 @@ function StatCard({ label, value, icon: Icon, color }: { label: string; value: s
         <Icon size={16} color={color} />
       </div>
       <div className="disp" style={{ fontSize: 22, fontWeight: 700 }}>{value}</div>
+    </div>
+  );
+}
+
+function DetailItem({ label, value }: { label: string; value: React.ReactNode }) {
+  const { colors } = useTheme();
+  return (
+    <div>
+      <div style={{ fontSize: 11, color: colors.textMuted, marginBottom: 3 }}>{label}</div>
+      <div style={{ fontSize: 13.5, fontWeight: 500 }}>{value}</div>
     </div>
   );
 }

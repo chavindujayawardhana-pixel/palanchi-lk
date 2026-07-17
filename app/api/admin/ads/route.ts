@@ -9,7 +9,9 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await getSupabaseAdmin()
     .from("advertisements")
-    .select("id, title, contact_name, price, status, featured, created_at, categories ( name_en, name_si, name_ta )")
+    .select(
+      "id, title, description, contact_name, phone, whatsapp, email, district, town, price, rental_period, quantity, condition, status, featured, created_at, categories ( name_en, name_si, name_ta ), advertisement_images ( image_url, is_cover, sort_order )"
+    )
     .order("created_at", { ascending: false });
 
   if (error) {
