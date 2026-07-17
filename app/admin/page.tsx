@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   LayoutDashboard, FileText, Users, Tag, Settings, LogOut, Search, Check, X,
-  Trash2, Star, Ban, Clock, CheckCircle2, XCircle, Sparkles, Menu, Eye, ImageOff,
+  Trash2, Star, Ban, Clock, CheckCircle2, XCircle, Sparkles, Menu, Eye, ImageOff, Mail,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -18,7 +18,7 @@ import type { AdStatus } from "@/lib/ads";
 
 const dict = {
   en: {
-    dashboard: "Dashboard", ads: "Advertisements", usersNav: "Users", categoriesNav: "Categories", settingsNav: "Settings", logout: "Log out",
+    dashboard: "Dashboard", ads: "Advertisements", usersNav: "Users", categoriesNav: "Categories", messagesNav: "Messages", settingsNav: "Settings", logout: "Log out",
     overview: "Overview", welcomeBack: "Here's what's happening with Palanchi.lk today.",
     totalUsers: "Total users", pendingAds: "Pending ads", approvedAds: "Approved ads", rejectedAds: "Rejected ads", featuredAds: "Featured ads", totalCategories: "Categories",
     adsOverTime: "Advertisements over time", adsByCategory: "Ads by category",
@@ -38,9 +38,11 @@ const dict = {
     view: "View", noPhotos: "No photos", quantity: "Quantity", condition: "Condition", condNew: "New", condUsed: "Used",
     description: "Description", contactDetails: "Contact details", contactName: "Contact name", phone: "Phone",
     whatsapp: "WhatsApp", email: "Email", close: "Close",
+    manageMessages: "Messages", subjectCol: "Subject", unread: "Unread", read: "Read", markRead: "Mark as read",
+    messageBody: "Message", noMessages: "No messages yet.",
   },
   si: {
-    dashboard: "ඩෑෂ්බෝඩ්", ads: "දැන්වීම්", usersNav: "පරිශීලකයන්", categoriesNav: "කාණ්ඩ", settingsNav: "සැකසුම්", logout: "ඉවත් වන්න",
+    dashboard: "ඩෑෂ්බෝඩ්", ads: "දැන්වීම්", usersNav: "පරිශීලකයන්", categoriesNav: "කාණ්ඩ", messagesNav: "පණිවිඩ", settingsNav: "සැකසුම්", logout: "ඉවත් වන්න",
     overview: "දළ විශ්ලේෂණය", welcomeBack: "අද Palanchi.lk හි සිදුවෙමින් පවතින දේ මෙන්න.",
     totalUsers: "මුළු පරිශීලකයන්", pendingAds: "අපේක්ෂිත දැන්වීම්", approvedAds: "අනුමත දැන්වීම්", rejectedAds: "ප්‍රතික්ෂේපිත දැන්වීම්", featuredAds: "විශේෂාංගිත දැන්වීම්", totalCategories: "කාණ්ඩ",
     adsOverTime: "කාලයත් සමඟ දැන්වීම්", adsByCategory: "කාණ්ඩ අනුව දැන්වීම්",
@@ -60,9 +62,11 @@ const dict = {
     view: "බලන්න", noPhotos: "ඡායාරූප නැත", quantity: "ප්‍රමාණය", condition: "තත්ත්වය", condNew: "අලුත්", condUsed: "පරණ",
     description: "විස්තරය", contactDetails: "සම්බන්ධතා විස්තර", contactName: "සම්බන්ධතා නම", phone: "දුරකථනය",
     whatsapp: "WhatsApp", email: "විද්‍යුත් තැපෑල", close: "වසන්න",
+    manageMessages: "පණිවිඩ", subjectCol: "විෂය", unread: "නොකියවූ", read: "කියවා ඇත", markRead: "කියවූ ලෙස සලකුණු කරන්න",
+    messageBody: "පණිවිඩය", noMessages: "තවම පණිවිඩ නැත.",
   },
   ta: {
-    dashboard: "டாஷ்போர்டு", ads: "விளம்பரங்கள்", usersNav: "பயனர்கள்", categoriesNav: "வகைகள்", settingsNav: "அமைப்புகள்", logout: "வெளியேறு",
+    dashboard: "டாஷ்போர்டு", ads: "விளம்பரங்கள்", usersNav: "பயனர்கள்", categoriesNav: "வகைகள்", messagesNav: "செய்திகள்", settingsNav: "அமைப்புகள்", logout: "வெளியேறு",
     overview: "மேலோட்டம்", welcomeBack: "இன்று Palanchi.lk இல் நடப்பது இதோ.",
     totalUsers: "மொத்த பயனர்கள்", pendingAds: "நிலுவையிலுள்ள விளம்பரங்கள்", approvedAds: "அங்கீகரிக்கப்பட்ட விளம்பரங்கள்", rejectedAds: "நிராகரிக்கப்பட்ட விளம்பரங்கள்", featuredAds: "சிறப்பு விளம்பரங்கள்", totalCategories: "வகைகள்",
     adsOverTime: "காலப்போக்கில் விளம்பரங்கள்", adsByCategory: "வகை வாரியான விளம்பரங்கள்",
@@ -82,6 +86,8 @@ const dict = {
     view: "பார்வை", noPhotos: "புகைப்படங்கள் இல்லை", quantity: "அளவு", condition: "நிலை", condNew: "புதியது", condUsed: "பழையது",
     description: "விளக்கம்", contactDetails: "தொடர்பு விவரங்கள்", contactName: "தொடர்பு பெயர்", phone: "தொலைபேசி",
     whatsapp: "WhatsApp", email: "மின்னஞ்சல்", close: "மூடு",
+    manageMessages: "செய்திகள்", subjectCol: "பொருள்", unread: "படிக்காதது", read: "படிக்கப்பட்டது", markRead: "படித்ததாக குறி",
+    messageBody: "செய்தி", noMessages: "இதுவரை செய்திகள் இல்லை.",
   },
 };
 
@@ -154,6 +160,40 @@ function mapAdminAdRow(row: AdminAdRow): AdminAd {
   };
 }
 
+type MessageStatus = "unread" | "read";
+
+interface AdminMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: MessageStatus;
+  date: string;
+}
+
+interface AdminMessageRow {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: MessageStatus;
+  created_at: string;
+}
+
+function mapMessageRow(row: AdminMessageRow): AdminMessage {
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    subject: row.subject,
+    message: row.message,
+    status: row.status,
+    date: row.created_at.slice(0, 10),
+  };
+}
+
 const USERS = [
   { id: 1, name: "Nadeesha Perera", email: "nadeesha@mail.com", town: "Kaduwela", joined: "2026-07-14", ads: 3 },
   { id: 2, name: "Suresh Kumara", email: "suresh@mail.com", town: "Kandy Town", joined: "2026-07-13", ads: 1 },
@@ -178,9 +218,11 @@ export default function AdminPage() {
   const [nav, setNav] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [ads, setAds] = useState<AdminAd[]>([]);
+  const [messages, setMessages] = useState<AdminMessage[]>([]);
   const [search, setSearch] = useState("");
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [viewAd, setViewAd] = useState<AdminAd | null>(null);
+  const [viewMessage, setViewMessage] = useState<AdminMessage | null>(null);
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState(false);
@@ -202,8 +244,17 @@ export default function AdminPage() {
     }
   }
 
+  async function loadMessages() {
+    const res = await fetch("/api/admin/messages");
+    if (res.ok) {
+      const json = await res.json();
+      setMessages((json.messages as AdminMessageRow[]).map(mapMessageRow));
+    }
+  }
+
   useEffect(() => {
     loadAds();
+    loadMessages();
   }, []);
 
   async function handleLogin(e: React.FormEvent) {
@@ -218,7 +269,7 @@ export default function AdminPage() {
     setLoggingIn(false);
     if (res.ok) {
       setPassword("");
-      await loadAds();
+      await Promise.all([loadAds(), loadMessages()]);
     } else {
       setLoginError(true);
     }
@@ -228,6 +279,16 @@ export default function AdminPage() {
     await fetch("/api/admin/logout", { method: "POST" });
     setAuthed(false);
     setAds([]);
+    setMessages([]);
+  }
+
+  async function markMessageRead(id: string) {
+    const res = await fetch(`/api/admin/messages/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "read" }),
+    });
+    if (res.ok) setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, status: "read" } : m)));
   }
 
   const stats = useMemo(
@@ -238,8 +299,9 @@ export default function AdminPage() {
       rejected: ads.filter((a) => a.status === "rejected").length,
       featured: ads.filter((a) => a.featured).length,
       categories: CATS.length,
+      unreadMessages: messages.filter((m) => m.status === "unread").length,
     }),
-    [ads]
+    [ads, messages]
   );
 
   const filteredAds = ads.filter(
@@ -281,11 +343,12 @@ export default function AdminPage() {
     return map[status];
   };
 
-  const navItems: { key: string; label: string; icon: LucideIcon }[] = [
+  const navItems: { key: string; label: string; icon: LucideIcon; badge?: number }[] = [
     { key: "dashboard", label: t.dashboard, icon: LayoutDashboard },
     { key: "ads", label: t.ads, icon: FileText },
     { key: "users", label: t.usersNav, icon: Users },
     { key: "categories", label: t.categoriesNav, icon: Tag },
+    { key: "messages", label: t.messagesNav, icon: Mail, badge: stats.unreadMessages },
     { key: "settings", label: t.settingsNav, icon: Settings },
   ];
 
@@ -336,6 +399,9 @@ export default function AdminPage() {
                 color: active ? gold : text, fontSize: 14, fontWeight: active ? 600 : 500, whiteSpace: "nowrap",
               }}>
                 <Icon size={17} /> {item.label}
+                {!!item.badge && (
+                  <span style={{ marginLeft: "auto", background: danger, color: "#fff", fontSize: 10.5, fontWeight: 700, borderRadius: 20, padding: "1px 7px" }}>{item.badge}</span>
+                )}
               </div>
             );
           })}
@@ -563,6 +629,58 @@ export default function AdminPage() {
             </>
           )}
 
+          {nav === "messages" && (
+            <>
+              <h1 className="disp" style={{ fontSize: 24, fontWeight: 700, margin: "0 0 18px" }}>{t.manageMessages}</h1>
+              {messages.length === 0 ? (
+                <div style={{ background: surface, border: `1px dashed ${border}`, borderRadius: 16, padding: 40, textAlign: "center", color: textMuted, fontSize: 14 }}>
+                  {t.noMessages}
+                </div>
+              ) : (
+                <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 16, overflow: "hidden" }}>
+                  <div style={{ overflowX: "auto" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, minWidth: 680 }}>
+                      <thead>
+                        <tr style={{ borderBottom: `1px solid ${border}` }}>
+                          {[t.nameCol, t.emailCol, t.subjectCol, t.date, t.status, t.actions].map((h, i) => (
+                            <th key={i} style={{ textAlign: "left", padding: "12px 16px", fontSize: 11.5, fontWeight: 600, color: textMuted, letterSpacing: 0.3 }}>{h.toUpperCase()}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {messages.map((m) => (
+                          <tr key={m.id} className="row-hover" style={{ borderBottom: `1px solid ${border}` }}>
+                            <td style={{ padding: "12px 16px", fontWeight: m.status === "unread" ? 600 : 500 }}>{m.name}</td>
+                            <td style={{ padding: "12px 16px", color: textMuted }}>{m.email}</td>
+                            <td style={{ padding: "12px 16px", color: textMuted, maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.subject}</td>
+                            <td style={{ padding: "12px 16px", color: textMuted }}>{m.date}</td>
+                            <td style={{ padding: "12px 16px" }}>
+                              <span style={{
+                                fontSize: 10.5, fontWeight: 600, padding: "4px 9px", borderRadius: 8,
+                                background: m.status === "unread" ? (dark ? "#2A2410" : "#FAEEDA") : (dark ? "#22242A" : "#EDEDED"),
+                                color: m.status === "unread" ? "#854F0B" : textMuted,
+                              }}>
+                                {m.status === "unread" ? t.unread : t.read}
+                              </span>
+                            </td>
+                            <td style={{ padding: "12px 16px" }}>
+                              <div style={{ display: "flex", gap: 6 }}>
+                                <IconBtn title={t.view} onClick={() => setViewMessage(m)} color={teal} Icon={Eye} border={border} />
+                                {m.status === "unread" && (
+                                  <IconBtn title={t.markRead} onClick={() => markMessageRead(m.id)} color={success} Icon={Check} border={border} />
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
           {nav === "settings" && (
             <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 16, padding: 40, textAlign: "center", color: textMuted, fontSize: 14 }}>
               {t.settingsPlaceholder}
@@ -633,6 +751,50 @@ export default function AdminPage() {
               {viewAd.whatsapp && <DetailItem label={t.whatsapp} value={viewAd.whatsapp} />}
               {viewAd.email && <DetailItem label={t.email} value={viewAd.email} />}
             </div>
+          </div>
+        </div>
+      )}
+
+      {viewMessage && (
+        <div onClick={() => setViewMessage(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 110, padding: 20 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: surface, borderRadius: 18, padding: 28, maxWidth: 520, width: "100%", maxHeight: "85vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 18 }}>
+              <div>
+                <div className="disp" style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>{viewMessage.subject}</div>
+                <span style={{
+                  fontSize: 10.5, fontWeight: 600, padding: "4px 9px", borderRadius: 8,
+                  background: viewMessage.status === "unread" ? (dark ? "#2A2410" : "#FAEEDA") : (dark ? "#22242A" : "#EDEDED"),
+                  color: viewMessage.status === "unread" ? "#854F0B" : textMuted,
+                }}>
+                  {viewMessage.status === "unread" ? t.unread : t.read}
+                </span>
+              </div>
+              <button type="button" onClick={() => setViewMessage(null)} className="btn" style={{ width: 30, height: 30, borderRadius: 8, border: `1px solid ${border}`, background: "transparent", display: "flex", alignItems: "center", justifyContent: "center", color: text, flexShrink: 0 }}>
+                <X size={15} />
+              </button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
+              <DetailItem label={t.contactName} value={viewMessage.name} />
+              <DetailItem label={t.email} value={viewMessage.email} />
+              <DetailItem label={t.date} value={viewMessage.date} />
+            </div>
+
+            <div style={{ marginBottom: viewMessage.status === "unread" ? 20 : 0 }}>
+              <div style={{ fontSize: 11.5, fontWeight: 600, color: textMuted, marginBottom: 6, letterSpacing: 0.3 }}>{t.messageBody.toUpperCase()}</div>
+              <p style={{ fontSize: 14, lineHeight: 1.6, margin: 0, whiteSpace: "pre-wrap" }}>{viewMessage.message}</p>
+            </div>
+
+            {viewMessage.status === "unread" && (
+              <button
+                type="button"
+                onClick={() => { markMessageRead(viewMessage.id); setViewMessage({ ...viewMessage, status: "read" }); }}
+                className="btn"
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", background: gold, color: "#1F2937", borderRadius: 12, padding: "12px", fontWeight: 600, fontSize: 14.5 }}
+              >
+                <Check size={15} /> {t.markRead}
+              </button>
+            )}
           </div>
         </div>
       )}

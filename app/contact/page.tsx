@@ -10,18 +10,20 @@ import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
 import { AuthNav } from "@/components/AuthNav";
 import { danger } from "@/lib/theme";
+import { supabase } from "@/lib/supabase";
 
 const dict = {
   en: {
     navCreate: "Create ad",
     pageTitle: "Get in touch", pageSub: "Questions, feedback, or need help with a listing? We're here for you.",
-    callUs: "Call us", whatsapp: "WhatsApp", emailUs: "Email us", visitUs: "Visit us",
-    hours: "Working hours", hoursValue: "Mon – Sat, 8:30 AM – 6:00 PM",
+    callUs: "Call us", whatsapp: "WhatsApp", emailUs: "Email us",
+    hours: "Working hours", hoursValue: "Always Open",
     formTitle: "Send us a message", name: "Your name", namePh: "Full name",
     email: "Email", emailPh: "you@example.com", subject: "Subject", subjectPh: "How can we help?",
     message: "Message", messagePh: "Write your message here...",
     send: "Send message", sending: "Sending...", required: "This field is required",
     sentTitle: "Message sent", sentBody: "Thanks for reaching out — our team will get back to you soon.",
+    submitError: "Something went wrong sending your message. Please try again.",
     faqTitle: "Frequently asked questions",
     faqs: [
       { q: "Do I need an account to post an ad?", a: "No. You can publish an ad as a guest, but registering lets you edit and manage your listings later." },
@@ -30,18 +32,18 @@ const dict = {
       { q: "What areas does Palanchi.lk cover?", a: "All 25 districts and their towns across Sri Lanka." },
     ],
     follow: "Follow us",
-    mapCaption: "Map preview — connect Google Maps API for live map",
   },
   si: {
     navCreate: "දැන්වීමක් පළ කරන්න",
     pageTitle: "අප හා සම්බන්ධ වන්න", pageSub: "ප්‍රශ්න, අදහස්, හෝ දැන්වීමක් සම්බන්ධව උදව් අවශ්‍යද? අපි ඔබ වෙනුවෙන් මෙහි සිටිමු.",
-    callUs: "අමතන්න", whatsapp: "WhatsApp", emailUs: "විද්‍යුත් තැපෑල", visitUs: "අප වෙත පැමිණෙන්න",
-    hours: "වැඩ කරන වේලාවන්", hoursValue: "සඳුදා – සෙනසුරාදා, පෙ.ව 8:30 – ප.ව 6:00",
+    callUs: "අමතන්න", whatsapp: "WhatsApp", emailUs: "විද්‍යුත් තැපෑල",
+    hours: "වැඩ කරන වේලාවන්", hoursValue: "සැමවිටම විවෘතයි",
     formTitle: "අපට පණිවිඩයක් එවන්න", name: "ඔබේ නම", namePh: "සම්පූර්ණ නම",
     email: "විද්‍යුත් තැපෑල", emailPh: "you@example.com", subject: "විෂය", subjectPh: "අපට කෙසේ උදව් කළ හැකිද?",
     message: "පණිවිඩය", messagePh: "ඔබේ පණිවිඩය මෙහි ලියන්න...",
     send: "පණිවිඩය එවන්න", sending: "එවමින්...", required: "මෙම කෙත්‍රය අවශ්‍යයි",
     sentTitle: "පණිවිඩය එවා ඇත", sentBody: "සම්බන්ධ වීම ගැන ස්තුතියි — අපගේ කණ්ඩායම ඉක්මනින් ඔබ හා සම්බන්ධ වනු ඇත.",
+    submitError: "ඔබේ පණිවිඩය එවීමේදී දෝෂයක් ඇති විය. නැවත උත්සාහ කරන්න.",
     faqTitle: "නිතර අසන ප්‍රශ්න",
     faqs: [
       { q: "දැන්වීමක් පළ කිරීමට ගිණුමක් අවශ්‍යද?", a: "නැත. ඔබට අමුත්තෙකු ලෙස දැන්වීමක් පළ කළ හැක, නමුත් ලියාපදිංචි වීමෙන් පසුව ඔබේ දැන්වීම් සංස්කරණය කිරීමට හා කළමනාකරණය කිරීමට හැකියි." },
@@ -50,18 +52,18 @@ const dict = {
       { q: "Palanchi.lk ආවරණය කරන ප්‍රදේශ මොනවාද?", a: "ශ්‍රී ලංකාවේ සියලුම දිස්ත්‍රික්ක 25 සහ ඒවායේ නගර." },
     ],
     follow: "අප අනුගමනය කරන්න",
-    mapCaption: "සිතියම් පෙරදසුන — සජීවී සිතියම සඳහා Google Maps API සම්බන්ධ කරන්න",
   },
   ta: {
     navCreate: "விளம்பரம் இடு",
     pageTitle: "எங்களை தொடர்பு கொள்ளுங்கள்", pageSub: "கேள்விகள், கருத்துகள், அல்லது பட்டியலில் உதவி தேவையா? நாங்கள் இங்கே இருக்கிறோம்.",
-    callUs: "எங்களை அழைக்கவும்", whatsapp: "WhatsApp", emailUs: "மின்னஞ்சல் அனுப்பவும்", visitUs: "எங்களை பார்வையிடவும்",
-    hours: "வேலை நேரம்", hoursValue: "திங்கள் – சனி, காலை 8:30 – மாலை 6:00",
+    callUs: "எங்களை அழைக்கவும்", whatsapp: "WhatsApp", emailUs: "மின்னஞ்சல் அனுப்பவும்",
+    hours: "வேலை நேரம்", hoursValue: "எப்போதும் திறந்திருக்கும்",
     formTitle: "எங்களுக்கு செய்தி அனுப்பவும்", name: "உங்கள் பெயர்", namePh: "முழு பெயர்",
     email: "மின்னஞ்சல்", emailPh: "you@example.com", subject: "பொருள்", subjectPh: "நாங்கள் எப்படி உதவ முடியும்?",
     message: "செய்தி", messagePh: "உங்கள் செய்தியை இங்கே எழுதவும்...",
     send: "செய்தி அனுப்பு", sending: "அனுப்புகிறது...", required: "இந்த புலம் அவசியம்",
     sentTitle: "செய்தி அனுப்பப்பட்டது", sentBody: "தொடர்பு கொண்டதற்கு நன்றி — எங்கள் குழு விரைவில் உங்களை தொடர்பு கொள்ளும்.",
+    submitError: "உங்கள் செய்தியை அனுப்பும் போது பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.",
     faqTitle: "அடிக்கடி கேட்கப்படும் கேள்விகள்",
     faqs: [
       { q: "விளம்பரம் இட கணக்கு தேவையா?", a: "இல்லை. நீங்கள் விருந்தினராக விளம்பரத்தை வெளியிடலாம், ஆனால் பதிவு செய்வதன் மூலம் பின்னர் உங்கள் பட்டியல்களை திருத்தலாம் மற்றும் நிர்வகிக்கலாம்." },
@@ -70,7 +72,6 @@ const dict = {
       { q: "Palanchi.lk எந்த பகுதிகளை உள்ளடக்குகிறது?", a: "இலங்கை முழுவதும் உள்ள அனைத்து 25 மாவட்டங்களும் அவற்றின் நகரங்களும்." },
     ],
     follow: "எங்களை பின்தொடரவும்",
-    mapCaption: "வரைபட முன்னோட்டம் — நேரடி வரைபடத்திற்கு Google Maps API ஐ இணைக்கவும்",
   },
 };
 
@@ -81,6 +82,7 @@ export default function ContactPage() {
   const [errors, setErrors] = useState<Record<string, boolean>>({});
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const t = dict[lang];
   const { bg, surface, text, textMuted, border, gold, teal } = colors;
@@ -95,21 +97,35 @@ export default function ContactPage() {
     setForm((f) => ({ ...f, [key]: val }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const errs: Record<string, boolean> = {};
     (["name", "email", "subject", "message"] as const).forEach((k) => { if (!form[k].trim()) errs[k] = true; });
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
+
     setSending(true);
-    setTimeout(() => { setSending(false); setSent(true); }, 900);
+    setSubmitError(null);
+    const { error } = await supabase.from("contact_messages").insert({
+      name: form.name,
+      email: form.email,
+      subject: form.subject,
+      message: form.message,
+      status: "unread",
+    });
+    setSending(false);
+    if (error) {
+      console.error(error);
+      setSubmitError(t.submitError);
+      return;
+    }
+    setSent(true);
   }
 
   const contactCards = [
     { Icon: Phone, label: t.callUs, value: "+94 11 234 5678" },
     { Icon: MessageCircle, label: t.whatsapp, value: "+94 77 123 4567" },
     { Icon: Mail, label: t.emailUs, value: "hello@palanchi.lk" },
-    { Icon: MapPin, label: t.visitUs, value: "142 Galle Road, Colombo 03" },
   ];
 
   return (
@@ -182,6 +198,9 @@ export default function ContactPage() {
                 <textarea value={form.message} onChange={(e) => update("message", e.target.value)} placeholder={t.messagePh} rows={5} style={{ ...fieldStyle(errors.message), resize: "vertical" }} />
                 {errors.message && <FieldError text={t.required} />}
               </div>
+              {submitError && (
+                <div style={{ fontSize: 13, color: danger, marginBottom: 14, textAlign: "center" }}>{submitError}</div>
+              )}
               <button type="submit" disabled={sending} className="btn" style={{ width: "100%", background: gold, color: "#1F2937", borderRadius: 12, padding: "13px", fontWeight: 600, fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, opacity: sending ? 0.7 : 1 }}>
                 <Send size={15} /> {sending ? t.sending : t.send}
               </button>
@@ -196,9 +215,7 @@ export default function ContactPage() {
               backgroundImage: "radial-gradient(circle at 30% 30%, rgba(244,180,0,0.15), transparent 60%), radial-gradient(circle at 70% 70%, rgba(244,180,0,0.1), transparent 60%)",
             }}>
               <div style={{ textAlign: "center", color: "#F0FBF8" }}>
-                <MapPin size={30} color={gold} style={{ marginBottom: 10 }} />
-                <div style={{ fontSize: 14, fontWeight: 500 }}>142 Galle Road, Colombo 03</div>
-                <div style={{ fontSize: 12.5, color: "#B8CFCB", marginTop: 4 }}>{t.mapCaption}</div>
+                <MapPin size={30} color={gold} />
               </div>
             </div>
           </div>
