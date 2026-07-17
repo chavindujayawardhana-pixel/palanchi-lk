@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { UploadCloud, X, Star, MapPin, Phone, Mail, CheckCircle2, ImagePlus } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
@@ -129,7 +128,6 @@ const EMPTY_FORM: FormState = {
 
 export default function CreateAdPage() {
   const { lang, dark, colors } = useTheme();
-  const router = useRouter();
   const { user, profile, loading: authLoading } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -143,12 +141,6 @@ export default function CreateAdPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [categories, setCategories] = useState<CategoryRow[]>([]);
   const [prefilled, setPrefilled] = useState(false);
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.replace("/login?next=/create-ad&notice=login-required");
-    }
-  }, [authLoading, user, router]);
 
   useEffect(() => {
     if (profile && !prefilled) {
@@ -216,7 +208,7 @@ export default function CreateAdPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!user || !validate()) return;
+    if (!validate()) return;
     setSubmitting(true);
     setSubmitError(null);
 
@@ -226,7 +218,7 @@ export default function CreateAdPage() {
         .from("advertisements")
         .insert({
           id: adId,
-          user_id: user.id,
+          user_id: user?.id ?? null,
           title: form.title,
           description: form.description,
           category_id: form.category ? Number(form.category) : null,
@@ -287,7 +279,7 @@ export default function CreateAdPage() {
     setSubmitted(false);
   }
 
-  if (authLoading || !user) return null;
+  if (authLoading) return null;
 
   if (submitted) {
     return (

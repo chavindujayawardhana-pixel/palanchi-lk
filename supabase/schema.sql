@@ -197,13 +197,21 @@ create policy "Admins can view all ads"
   on public.advertisements for select
   using (public.is_admin());
 
--- Posting requires an account: caller must be logged in and the ad's
--- user_id must be their own, and it always starts out "pending".
+-- Posting is allowed both logged in and as a guest. Logged-in users must
+-- own the ad they're creating (user_id = auth.uid()); guests must leave
+-- user_id null (can't impersonate an account). Either way it starts "pending".
 drop policy if exists "Anyone can submit a pending ad" on public.advertisements;
 drop policy if exists "Authenticated users can submit their own pending ad" on public.advertisements;
 create policy "Authenticated users can submit their own pending ad"
   on public.advertisements for insert
+  to authenticated
   with check (status = 'pending' and auth.uid() = user_id);
+
+drop policy if exists "Anonymous users can submit a pending ad" on public.advertisements;
+create policy "Anonymous users can submit a pending ad"
+  on public.advertisements for insert
+  to anon
+  with check (status = 'pending' and user_id is null);
 
 drop policy if exists "Owners can update their own ads" on public.advertisements;
 create policy "Owners can update their own ads"
@@ -291,35 +299,41 @@ create policy "Admins can view all ad images"
   on public.advertisement_images for select
   using (public.is_admin());
 
+-- Guest-submitted ads have no owner (user_id is null), so allow attaching/
+-- managing images for those too, not just ones owned by the caller.
+--
+-- This has to be a security definer function rather than an inline EXISTS:
+-- a pending, ownerless ad isn't visible under advertisements' own SELECT
+-- policies to an anonymous caller, so a plain subquery would see zero rows
+-- (and fail) even though the ownership check itself should pass. Same
+-- bypass-RLS-internally pattern as is_admin().
+create or replace function public.can_manage_ad_images(ad_id uuid)
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select exists (
+    select 1 from public.advertisements a
+    where a.id = ad_id and (a.user_id = auth.uid() or a.user_id is null)
+  );
+$$;
+
 drop policy if exists "Owners can add images to their own ads" on public.advertisement_images;
 create policy "Owners can add images to their own ads"
   on public.advertisement_images for insert
-  with check (
-    exists (
-      select 1 from public.advertisements a
-      where a.id = advertisement_id and a.user_id = auth.uid()
-    )
-  );
+  with check (public.can_manage_ad_images(advertisement_id));
 
 drop policy if exists "Owners can update their own ad images" on public.advertisement_images;
 create policy "Owners can update their own ad images"
   on public.advertisement_images for update
-  using (
-    exists (
-      select 1 from public.advertisements a
-      where a.id = advertisement_id and a.user_id = auth.uid()
-    )
-  );
+  using (public.can_manage_ad_images(advertisement_id));
 
 drop policy if exists "Owners can delete their own ad images" on public.advertisement_images;
 create policy "Owners can delete their own ad images"
   on public.advertisement_images for delete
-  using (
-    exists (
-      select 1 from public.advertisements a
-      where a.id = advertisement_id and a.user_id = auth.uid()
-    )
-  );
+  using (public.can_manage_ad_images(advertisement_id));
 
 drop policy if exists "Admins can manage all ad images" on public.advertisement_images;
 create policy "Admins can manage all ad images"
@@ -340,9 +354,9 @@ create policy "Public read access to ad images"
   on storage.objects for select
   using (bucket_id = 'advertisement-images');
 
+-- Guests can post ads again too, so photo uploads must stay open to anyone.
 drop policy if exists "Anyone can upload ad images" on storage.objects;
 drop policy if exists "Authenticated users can upload ad images" on storage.objects;
-create policy "Authenticated users can upload ad images"
+create policy "Anyone can upload ad images"
   on storage.objects for insert
-  to authenticated
   with check (bucket_id = 'advertisement-images');
