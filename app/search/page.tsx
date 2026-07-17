@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Search, MapPin, SlidersHorizontal, ArrowUpDown } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
-import { ADS, CATEGORIES, DISTRICTS, TOWNS, type Period } from "@/lib/data";
+import { DISTRICTS, TOWNS, type Period } from "@/lib/data";
+import { fetchApprovedAds, type LiveAd } from "@/lib/ads";
+import { useCategories } from "@/lib/categories";
 import { fmt } from "@/lib/format";
 import type { Lang } from "@/lib/i18n";
 
@@ -58,15 +60,25 @@ export default function SearchPage() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [sort, setSort] = useState("newest");
+  const [ads, setAds] = useState<LiveAd[]>([]);
+  const categories = useCategories();
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchApprovedAds().then((data) => {
+      if (!cancelled) setAds(data);
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   const t: SearchDict = dict[lang];
   const { surface, text, textMuted, border, gold, teal } = colors;
 
   const results = useMemo(() => {
-    let r = ADS.filter(
+    let r = ads.filter(
       (a) =>
         (!query || a.title.toLowerCase().includes(query.toLowerCase())) &&
-        (!category || a.cat === category) &&
+        (!category || String(a.categoryId) === category) &&
         (!district || a.district === district) &&
         (!town || a.town === town) &&
         (!minPrice || a.price >= Number(minPrice)) &&
@@ -75,7 +87,7 @@ export default function SearchPage() {
     if (sort === "featured") r = [...r].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
     if (sort === "oldest") r = [...r].reverse();
     return r;
-  }, [query, category, district, town, minPrice, maxPrice, sort]);
+  }, [ads, query, category, district, town, minPrice, maxPrice, sort]);
 
   const clearAll = () => {
     setQuery("");
@@ -137,7 +149,7 @@ export default function SearchPage() {
             <label style={labelStyle}>{t.category}</label>
             <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ ...fieldStyle, marginBottom: 16 }}>
               <option value="">{t.allCategories}</option>
-              {CATEGORIES.map((c) => <option key={c.key} value={c.key}>{c[lang]}</option>)}
+              {categories.map((c) => <option key={c.id} value={c.id}>{c[`name_${lang}`]}</option>)}
             </select>
 
             <label style={labelStyle}>{t.district}</label>
@@ -170,10 +182,10 @@ export default function SearchPage() {
                 {results.map((ad) => (
                   <Link key={ad.id} href={`/ads/${ad.id}`} className="card-hover" style={{ background: surface, border: `1px solid ${border}`, borderRadius: 18, overflow: "hidden", cursor: "pointer", textDecoration: "none", color: "inherit", display: "block" }}>
                     <div style={{ position: "relative" }}>
-                      <img src={ad.img} alt={ad.title} style={{ width: "100%", height: 148, objectFit: "cover", display: "block" }} />
+                      <img src={ad.images[0]} alt={ad.title} style={{ width: "100%", height: 148, objectFit: "cover", display: "block" }} />
                       {ad.featured && <span style={{ position: "absolute", top: 10, left: 10, background: gold, color: "#1F2937", fontSize: 11, fontWeight: 700, padding: "4px 9px", borderRadius: 8 }}>FEATURED</span>}
-                      <span style={{ position: "absolute", top: 10, right: 10, background: dark ? "rgba(16,22,26,0.85)" : "rgba(255,255,255,0.9)", fontSize: 10.5, fontWeight: 600, padding: "4px 9px", borderRadius: 8, color: ad.cond === "new" ? "#0F3D3E" : "#6B7280" }}>
-                        {ad.cond === "new" ? t.conditionNew : t.condition}
+                      <span style={{ position: "absolute", top: 10, right: 10, background: dark ? "rgba(16,22,26,0.85)" : "rgba(255,255,255,0.9)", fontSize: 10.5, fontWeight: 600, padding: "4px 9px", borderRadius: 8, color: ad.condition === "new" ? "#0F3D3E" : "#6B7280" }}>
+                        {ad.condition === "new" ? t.conditionNew : t.condition}
                       </span>
                     </div>
                     <div style={{ padding: "16px" }}>

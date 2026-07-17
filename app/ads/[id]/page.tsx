@@ -1,16 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, notFound } from "next/navigation";
 import {
   MapPin, Phone, Mail, MessageCircle, ChevronLeft, ChevronRight, Heart,
-  Share2, Flag, Calendar, Package, Tag, ShieldCheck, X,
+  Share2, Flag, Calendar, Package, Tag, X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
-import { ADS, CATEGORIES, adGallery, type Period } from "@/lib/data";
+import { type Period } from "@/lib/data";
+import { fetchAdById, fetchApprovedAds, type LiveAd } from "@/lib/ads";
 import { fmt } from "@/lib/format";
 import type { Lang } from "@/lib/i18n";
 
@@ -70,19 +71,33 @@ export default function AdDetailPage() {
   const [activeImg, setActiveImg] = useState(0);
   const [saved, setSaved] = useState(false);
   const [lightbox, setLightbox] = useState(false);
+  const [ad, setAd] = useState<LiveAd | null>(null);
+  const [allAds, setAllAds] = useState<LiveAd[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const ad = ADS.find((a) => a.id === Number(params.id));
-  if (!ad) notFound();
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([fetchAdById(params.id), fetchApprovedAds()]).then(([foundAd, all]) => {
+      if (cancelled) return;
+      setAd(foundAd);
+      setAllAds(all);
+      setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [params.id]);
 
   const t: DetailDict = dict[lang];
   const { surface, text, textMuted, border, gold, teal } = colors;
 
-  const images = adGallery(ad.img);
-  const category = CATEGORIES.find((c) => c.key === ad.cat);
+  if (loading) return null;
+  if (!ad) notFound();
+
+  const images = ad.images;
+  const category = ad.categoryName;
   const similarAds = (
-    ADS.filter((a) => a.id !== ad.id && a.cat === ad.cat).length
-      ? ADS.filter((a) => a.id !== ad.id && a.cat === ad.cat)
-      : ADS.filter((a) => a.id !== ad.id)
+    allAds.filter((a) => a.id !== ad.id && a.categoryId === ad.categoryId).length
+      ? allAds.filter((a) => a.id !== ad.id && a.categoryId === ad.categoryId)
+      : allAds.filter((a) => a.id !== ad.id)
   ).slice(0, 3);
 
   const nextImg = () => setActiveImg((activeImg + 1) % images.length);
@@ -157,10 +172,10 @@ export default function AdDetailPage() {
 
             {/* Spec grid */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))", gap: 10, marginTop: 22 }}>
-              <SpecItem icon={Tag} label={t.category} value={category ? category[lang] : ad.cat} surface={surface} border={border} textMuted={textMuted} gold={gold} />
-              <SpecItem icon={Package} label={t.condition} value={ad.cond === "new" ? t.conditionNew : t.conditionUsed} surface={surface} border={border} textMuted={textMuted} gold={gold} />
-              <SpecItem icon={Package} label={t.quantity} value={ad.qty} surface={surface} border={border} textMuted={textMuted} gold={gold} />
-              <SpecItem icon={Calendar} label={t.posted} value={ad.posted} surface={surface} border={border} textMuted={textMuted} gold={gold} />
+              <SpecItem icon={Tag} label={t.category} value={category ? category[lang] : "—"} surface={surface} border={border} textMuted={textMuted} gold={gold} />
+              <SpecItem icon={Package} label={t.condition} value={ad.condition === "new" ? t.conditionNew : t.conditionUsed} surface={surface} border={border} textMuted={textMuted} gold={gold} />
+              <SpecItem icon={Package} label={t.quantity} value={ad.quantity} surface={surface} border={border} textMuted={textMuted} gold={gold} />
+              <SpecItem icon={Calendar} label={t.posted} value={new Date(ad.createdAt).toISOString().slice(0, 10)} surface={surface} border={border} textMuted={textMuted} gold={gold} />
             </div>
 
             <div style={{ marginTop: 26 }}>
@@ -175,7 +190,9 @@ export default function AdDetailPage() {
                   <MapPin size={18} color={gold} />
                   <span style={{ fontSize: 14 }}>{ad.town}, {ad.district}</span>
                 </div>
-                <button className="btn" style={{ background: gold, color: "#1F2937", borderRadius: 10, padding: "8px 16px", fontSize: 13, fontWeight: 600 }}>{t.viewOnMap}</button>
+                {ad.mapLink && (
+                  <a href={ad.mapLink} target="_blank" rel="noreferrer" className="btn" style={{ background: gold, color: "#1F2937", borderRadius: 10, padding: "8px 16px", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>{t.viewOnMap}</a>
+                )}
               </div>
             </div>
           </div>
@@ -190,11 +207,6 @@ export default function AdDetailPage() {
               </div>
               <div>
                 <div style={{ fontSize: 14.5, fontWeight: 600 }}>{ad.contactName}</div>
-                {ad.verified && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11.5, color: "#0F6E56" }}>
-                    <ShieldCheck size={12} /> {t.verified}
-                  </div>
-                )}
               </div>
             </div>
 
@@ -205,12 +217,16 @@ export default function AdDetailPage() {
             <a href={`tel:${ad.phone}`} className="btn" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", background: gold, color: "#1F2937", borderRadius: 12, padding: "12px", fontWeight: 600, fontSize: 14.5, marginBottom: 10, textDecoration: "none" }}>
               <Phone size={16} /> {t.call} · {ad.phone}
             </a>
-            <a href={`https://wa.me/${ad.whatsapp.replace(/[^0-9]/g, "")}`} className="btn" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", background: "#25D366", color: "#fff", borderRadius: 12, padding: "12px", fontWeight: 600, fontSize: 14.5, marginBottom: 10, textDecoration: "none" }}>
-              <MessageCircle size={16} /> {t.whatsapp}
-            </a>
-            <a href={`mailto:${ad.email}`} className="btn" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", background: "transparent", border: `1px solid ${border}`, color: text, borderRadius: 12, padding: "12px", fontWeight: 500, fontSize: 14.5, textDecoration: "none" }}>
-              <Mail size={16} /> {t.email}
-            </a>
+            {ad.whatsapp && (
+              <a href={`https://wa.me/${ad.whatsapp.replace(/[^0-9]/g, "")}`} className="btn" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", background: "#25D366", color: "#fff", borderRadius: 12, padding: "12px", fontWeight: 600, fontSize: 14.5, marginBottom: 10, textDecoration: "none" }}>
+                <MessageCircle size={16} /> {t.whatsapp}
+              </a>
+            )}
+            {ad.email && (
+              <a href={`mailto:${ad.email}`} className="btn" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", background: "transparent", border: `1px solid ${border}`, color: text, borderRadius: 12, padding: "12px", fontWeight: 500, fontSize: 14.5, textDecoration: "none" }}>
+                <Mail size={16} /> {t.email}
+              </a>
+            )}
 
             <div style={{ height: 1, background: border, margin: "18px 0" }} />
 
@@ -235,7 +251,7 @@ export default function AdDetailPage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
             {similarAds.map((sa) => (
               <Link key={sa.id} href={`/ads/${sa.id}`} className="card-hover" style={{ background: surface, border: `1px solid ${border}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", textDecoration: "none", color: text, display: "block" }}>
-                <img src={sa.img} alt={sa.title} style={{ width: "100%", height: 130, objectFit: "cover", display: "block" }} />
+                <img src={sa.images[0]} alt={sa.title} style={{ width: "100%", height: 130, objectFit: "cover", display: "block" }} />
                 <div style={{ padding: 14 }}>
                   <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>{sa.title}</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: textMuted, marginBottom: 10 }}>

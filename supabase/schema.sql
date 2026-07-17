@@ -193,14 +193,23 @@ create policy "Admins can delete any ad"
 -- Owners can update their own ads, but only admins may change `status`
 -- (the "Owners can update their own ads" policy above allows editing other
 -- columns; this trigger blocks status changes from anyone but an admin).
+-- The admin panel's API routes use the service_role key (see lib/supabaseAdmin.ts),
+-- which bypasses RLS but NOT triggers, so it must also be allowed here.
+--
+-- Deliberately NOT security definer: this function only needs to read
+-- current_user (the actual calling role, e.g. service_role/anon/authenticated).
+-- Security definer would replace current_user with the function owner for
+-- the duration of the call, breaking that check. public.is_admin() still
+-- elevates internally on its own, so this function doesn't need to.
 create or replace function public.prevent_status_change_by_non_admin()
 returns trigger
 language plpgsql
-security definer
 set search_path = public
 as $$
 begin
-  if new.status is distinct from old.status and not public.is_admin() then
+  if new.status is distinct from old.status
+     and not public.is_admin()
+     and current_user <> 'service_role' then
     raise exception 'Only admins can change advertisement status';
   end if;
   return new;

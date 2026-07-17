@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -14,7 +14,8 @@ import {
 } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
-import { ADS, CATEGORIES, DISTRICTS, REVIEWS, type Ad, type Period } from "@/lib/data";
+import { CATEGORIES, DISTRICTS, REVIEWS, type Period } from "@/lib/data";
+import { fetchApprovedAds, type LiveAd } from "@/lib/ads";
 import { fmt } from "@/lib/format";
 import type { Lang } from "@/lib/i18n";
 
@@ -39,6 +40,7 @@ const dict = {
     fPrivacy: "Privacy policy", fTerms: "Terms of service", fContact: "Contact us",
     copyright: "© 2026 Palanchi.lk", madeBy: "Made with care by Chavindu Jayawardana",
     condition: "Used", conditionNew: "New",
+    noAdsYet: "No listings yet. Be the first to post one!",
   },
   si: {
     navHome: "මුල් පිටුව", navCreate: "දැන්වීමක් පළ කරන්න", navContact: "අමතන්න",
@@ -60,6 +62,7 @@ const dict = {
     fPrivacy: "පෞද්ගලිකත්ව ප්‍රතිපත්තිය", fTerms: "සේවා නියම", fContact: "අප අමතන්න",
     copyright: "© 2026 Palanchi.lk", madeBy: "Chavindu Jayawardana විසින් සකසන ලදී",
     condition: "පරණ", conditionNew: "අලුත්",
+    noAdsYet: "තවම දැන්වීම් නැත. පළමු වන්නා වන්න!",
   },
   ta: {
     navHome: "முகப்பு", navCreate: "விளம்பரம் இடு", navContact: "தொடர்பு",
@@ -81,30 +84,40 @@ const dict = {
     fPrivacy: "தனியுரிமைக் கொள்கை", fTerms: "சேவை விதிமுறைகள்", fContact: "எங்களை தொடர்பு கொள்ள",
     copyright: "© 2026 Palanchi.lk", madeBy: "Chavindu Jayawardana ஆல் உருவாக்கப்பட்டது",
     condition: "பழையது", conditionNew: "புதியது",
+    noAdsYet: "இன்னும் விளம்பரங்கள் இல்லை. முதலில் பதிவு செய்யுங்கள்!",
   },
 };
 
 type HomeDict = (typeof dict)[Lang];
-
-const HOME_ADS = ADS.slice(0, 8);
 
 export default function HomePage() {
   const { lang, dark, colors } = useTheme();
   const [menuModal, setMenuModal] = useState(false);
   const [query, setQuery] = useState("");
   const [district, setDistrict] = useState("");
+  const [ads, setAds] = useState<LiveAd[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchApprovedAds().then((data) => {
+      if (!cancelled) setAds(data);
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   const t = dict[lang];
   const { surface, text, textMuted, border, gold, teal } = colors;
 
+  const homeAds = ads.slice(0, 8);
+
   const filteredAds = useMemo(
     () =>
-      HOME_ADS.filter(
+      homeAds.filter(
         (a) =>
           (!query || a.title.toLowerCase().includes(query.toLowerCase())) &&
           (!district || a.district === district)
       ),
-    [query, district]
+    [homeAds, query, district]
   );
 
   const featured = filteredAds.filter((a) => a.featured);
@@ -194,10 +207,10 @@ export default function HomePage() {
       </section>
 
       {/* FEATURED */}
-      <AdSection title={t.featured} viewAll={t.viewAll} ads={featured.length ? featured : HOME_ADS.filter((a) => a.featured)} t={t} />
+      <AdSection title={t.featured} viewAll={t.viewAll} ads={featured.length ? featured : homeAds.filter((a) => a.featured)} t={t} />
 
       {/* LATEST */}
-      <AdSection title={t.latest} viewAll={t.viewAll} ads={latest.length ? latest : HOME_ADS} t={t} />
+      <AdSection title={t.latest} viewAll={t.viewAll} ads={latest.length ? latest : homeAds} t={t} />
 
       {/* WHY CHOOSE US */}
       <section style={{ maxWidth: 1240, margin: "0 auto", padding: "40px 24px 60px" }}>
@@ -288,7 +301,7 @@ function FooterCol({ title, items }: { title: string; items: string[] }) {
   );
 }
 
-function AdSection({ title, viewAll, ads, t }: { title: string; viewAll: string; ads: Ad[]; t: HomeDict }) {
+function AdSection({ title, viewAll, ads, t }: { title: string; viewAll: string; ads: LiveAd[]; t: HomeDict }) {
   const { dark, colors } = useTheme();
   const { surface, border, textMuted, gold, teal } = colors;
   return (
@@ -297,33 +310,39 @@ function AdSection({ title, viewAll, ads, t }: { title: string; viewAll: string;
         <h2 className="disp" style={{ fontSize: 22, fontWeight: 600, margin: 0 }}>{title}</h2>
         <Link href="/search" style={{ color: teal, fontSize: 14, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>{viewAll} <ArrowRight size={14} /></Link>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 18 }}>
-        {ads.map((ad) => (
-          <Link key={ad.id} href={`/ads/${ad.id}`} className="card-hover" style={{ background: surface, border: `1px solid ${border}`, borderRadius: 18, overflow: "hidden", cursor: "pointer", position: "relative", textDecoration: "none", color: "inherit", display: "block" }}>
-            <div style={{ position: "relative" }}>
-              <img src={ad.img} alt={ad.title} style={{ width: "100%", height: 150, objectFit: "cover", display: "block" }} />
-              {ad.featured && (
-                <span style={{ position: "absolute", top: 10, left: 10, background: gold, color: "#1F2937", fontSize: 11, fontWeight: 700, padding: "4px 9px", borderRadius: 8 }}>FEATURED</span>
-              )}
-              <span style={{ position: "absolute", top: 10, right: 10, background: dark ? "rgba(16,22,26,0.85)" : "rgba(255,255,255,0.9)", fontSize: 10.5, fontWeight: 600, padding: "4px 9px", borderRadius: 8, color: ad.cond === "new" ? "#0F3D3E" : "#6B7280" }}>{ad.cond === "new" ? t.conditionNew : t.condition}</span>
-            </div>
+      {ads.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "40px 20px", background: surface, border: `1px dashed ${border}`, borderRadius: 16, color: textMuted, fontSize: 14 }}>
+          {t.noAdsYet}
+        </div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 18 }}>
+          {ads.map((ad) => (
+            <Link key={ad.id} href={`/ads/${ad.id}`} className="card-hover" style={{ background: surface, border: `1px solid ${border}`, borderRadius: 18, overflow: "hidden", cursor: "pointer", position: "relative", textDecoration: "none", color: "inherit", display: "block" }}>
+              <div style={{ position: "relative" }}>
+                <img src={ad.images[0]} alt={ad.title} style={{ width: "100%", height: 150, objectFit: "cover", display: "block" }} />
+                {ad.featured && (
+                  <span style={{ position: "absolute", top: 10, left: 10, background: gold, color: "#1F2937", fontSize: 11, fontWeight: 700, padding: "4px 9px", borderRadius: 8 }}>FEATURED</span>
+                )}
+                <span style={{ position: "absolute", top: 10, right: 10, background: dark ? "rgba(16,22,26,0.85)" : "rgba(255,255,255,0.9)", fontSize: 10.5, fontWeight: 600, padding: "4px 9px", borderRadius: 8, color: ad.condition === "new" ? "#0F3D3E" : "#6B7280" }}>{ad.condition === "new" ? t.conditionNew : t.condition}</span>
+              </div>
 
-            <div style={{ padding: "16px 16px 18px", position: "relative" }}>
-              <div style={{ position: "absolute", top: -1, left: 0, right: 0, height: 0, borderTop: `1px dashed ${border}` }} />
-              {[0, 1].map((side) => (
-                <div key={side} style={{ position: "absolute", top: -6, width: 12, height: 12, borderRadius: "50%", background: "var(--page-behind, transparent)", border: `1px solid ${border}`, left: side === 0 ? -6 : "auto", right: side === 1 ? -6 : "auto" }} />
-              ))}
-              <div style={{ fontSize: 14.5, fontWeight: 600, marginBottom: 6, lineHeight: 1.35 }}>{ad.title}</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12.5, color: textMuted, marginBottom: 12 }}>
-                <MapPin size={12} /> {ad.town}, {ad.district}
+              <div style={{ padding: "16px 16px 18px", position: "relative" }}>
+                <div style={{ position: "absolute", top: -1, left: 0, right: 0, height: 0, borderTop: `1px dashed ${border}` }} />
+                {[0, 1].map((side) => (
+                  <div key={side} style={{ position: "absolute", top: -6, width: 12, height: 12, borderRadius: "50%", background: "var(--page-behind, transparent)", border: `1px solid ${border}`, left: side === 0 ? -6 : "auto", right: side === 1 ? -6 : "auto" }} />
+                ))}
+                <div style={{ fontSize: 14.5, fontWeight: 600, marginBottom: 6, lineHeight: 1.35 }}>{ad.title}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12.5, color: textMuted, marginBottom: 12 }}>
+                  <MapPin size={12} /> {ad.town}, {ad.district}
+                </div>
+                <div className="mono" style={{ fontSize: 17, fontWeight: 600, color: teal }}>
+                  Rs {fmt(ad.price)} <span style={{ fontSize: 12, fontWeight: 500, color: textMuted }}>{t[ad.period as Period]}</span>
+                </div>
               </div>
-              <div className="mono" style={{ fontSize: 17, fontWeight: 600, color: teal }}>
-                Rs {fmt(ad.price)} <span style={{ fontSize: 12, fontWeight: 500, color: textMuted }}>{t[ad.period as Period]}</span>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

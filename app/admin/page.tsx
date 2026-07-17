@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   LayoutDashboard, FileText, Users, Tag, Settings, LogOut, Search, Check, X,
   Trash2, Star, Ban, Clock, CheckCircle2, XCircle, Sparkles, Menu,
@@ -32,6 +32,8 @@ const dict = {
     addCategory: "Add category", categoryName: "Category name", adCount: "Ads",
     adminPanel: "ADMIN PANEL", nameCol: "Name", emailCol: "Email", townCol: "Town",
     settingsPlaceholder: "Settings — prototype placeholder",
+    adminLoginTitle: "Admin sign in", adminLoginSub: "Enter the admin password to manage Palanchi.lk.",
+    passwordLabel: "Password", passwordPh: "Enter password", loginBtn: "Sign in", wrongPassword: "Incorrect password",
   },
   si: {
     dashboard: "ඩෑෂ්බෝඩ්", ads: "දැන්වීම්", usersNav: "පරිශීලකයන්", categoriesNav: "කාණ්ඩ", settingsNav: "සැකසුම්", logout: "ඉවත් වන්න",
@@ -49,6 +51,8 @@ const dict = {
     addCategory: "කාණ්ඩයක් එකතු කරන්න", categoryName: "කාණ්ඩයේ නම", adCount: "දැන්වීම්",
     adminPanel: "පරිපාලක පැනලය", nameCol: "නම", emailCol: "විද්‍යුත් තැපෑල", townCol: "නගරය",
     settingsPlaceholder: "සැකසුම් — මූලාකෘති ස්ථානගත කරන්නා",
+    adminLoginTitle: "පරිපාලක පිවිසුම", adminLoginSub: "Palanchi.lk කළමනාකරණය කිරීමට පරිපාලක මුරපදය ඇතුළත් කරන්න.",
+    passwordLabel: "මුරපදය", passwordPh: "මුරපදය ඇතුළත් කරන්න", loginBtn: "පිවිසෙන්න", wrongPassword: "වැරදි මුරපදයකි",
   },
   ta: {
     dashboard: "டாஷ்போர்டு", ads: "விளம்பரங்கள்", usersNav: "பயனர்கள்", categoriesNav: "வகைகள்", settingsNav: "அமைப்புகள்", logout: "வெளியேறு",
@@ -66,32 +70,47 @@ const dict = {
     addCategory: "வகையைச் சேர்", categoryName: "வகையின் பெயர்", adCount: "விளம்பரங்கள்",
     adminPanel: "நிர்வாக பலகம்", nameCol: "பெயர்", emailCol: "மின்னஞ்சல்", townCol: "நகரம்",
     settingsPlaceholder: "அமைப்புகள் — மாதிரி ஒதுக்கிடம்",
+    adminLoginTitle: "நிர்வாக உள்நுழைவு", adminLoginSub: "Palanchi.lk ஐ நிர்வகிக்க நிர்வாக கடவுச்சொல்லை உள்ளிடவும்.",
+    passwordLabel: "கடவுச்சொல்", passwordPh: "கடவுச்சொல்லை உள்ளிடவும்", loginBtn: "உள்நுழை", wrongPassword: "தவறான கடவுச்சொல்",
   },
 };
 
 type AdStatus = "pending" | "approved" | "rejected" | "suspended";
 
 interface AdminAd {
-  id: number;
+  id: string;
   title: string;
   user: string;
-  category: string;
+  categoryName: { name_en: string; name_si: string; name_ta: string } | null;
   price: number;
   date: string;
   status: AdStatus;
   featured: boolean;
 }
 
-const INITIAL_ADS: AdminAd[] = [
-  { id: 101, title: "20 kVA Diesel Generator", user: "Nadeesha P.", category: "Generators", price: 4500, date: "2026-07-14", status: "pending", featured: false },
-  { id: 102, title: "Steel Cup-Lock Scaffolding Set", user: "Suresh K.", category: "Scaffolding", price: 12000, date: "2026-07-13", status: "approved", featured: true },
-  { id: 103, title: "JCB 3DX Backhoe Loader", user: "Fathima R.", category: "Excavators", price: 18500, date: "2026-07-13", status: "approved", featured: true },
-  { id: 104, title: "Bosch Rotary Hammer Drill", user: "Kasun D.", category: "Power tools", price: 950, date: "2026-07-12", status: "pending", featured: false },
-  { id: 105, title: "20ft Storage Container", user: "Amara S.", category: "Containers", price: 9000, date: "2026-07-11", status: "rejected", featured: false },
-  { id: 106, title: "Mini Tipper Truck 3T", user: "Ruwan J.", category: "Vehicles", price: 7200, date: "2026-07-10", status: "approved", featured: false },
-  { id: 107, title: "PA Sound System, 2 Speakers", user: "Dilani W.", category: "Event equipment", price: 6000, date: "2026-07-09", status: "pending", featured: false },
-  { id: 108, title: "Portable Welding Machine", user: "Chamara B.", category: "Electrical equipment", price: 1800, date: "2026-07-08", status: "suspended", featured: false },
-];
+interface AdminAdRow {
+  id: string;
+  title: string;
+  contact_name: string;
+  price: number;
+  status: AdStatus;
+  featured: boolean;
+  created_at: string;
+  categories: { name_en: string; name_si: string; name_ta: string } | null;
+}
+
+function mapAdminAdRow(row: AdminAdRow): AdminAd {
+  return {
+    id: row.id,
+    title: row.title,
+    user: row.contact_name,
+    categoryName: row.categories,
+    price: Number(row.price),
+    date: row.created_at.slice(0, 10),
+    status: row.status,
+    featured: row.featured,
+  };
+}
 
 const USERS = [
   { id: 1, name: "Nadeesha Perera", email: "nadeesha@mail.com", town: "Kaduwela", joined: "2026-07-14", ads: 3 },
@@ -116,12 +135,57 @@ export default function AdminPage() {
   const { lang, dark, colors } = useTheme();
   const [nav, setNav] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [ads, setAds] = useState<AdminAd[]>(INITIAL_ADS);
+  const [ads, setAds] = useState<AdminAd[]>([]);
   const [search, setSearch] = useState("");
-  const [confirmId, setConfirmId] = useState<number | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [authed, setAuthed] = useState<boolean | null>(null);
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState(false);
+  const [loggingIn, setLoggingIn] = useState(false);
 
   const t = dict[lang];
   const { bg, surface, text, textMuted, border, gold, teal, danger, success } = colors;
+
+  async function loadAds() {
+    const res = await fetch("/api/admin/ads");
+    if (res.status === 401) {
+      setAuthed(false);
+      return;
+    }
+    if (res.ok) {
+      const json = await res.json();
+      setAds((json.ads as AdminAdRow[]).map(mapAdminAdRow));
+      setAuthed(true);
+    }
+  }
+
+  useEffect(() => {
+    loadAds();
+  }, []);
+
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setLoggingIn(true);
+    setLoginError(false);
+    const res = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
+    setLoggingIn(false);
+    if (res.ok) {
+      setPassword("");
+      await loadAds();
+    } else {
+      setLoginError(true);
+    }
+  }
+
+  async function handleLogout() {
+    await fetch("/api/admin/logout", { method: "POST" });
+    setAuthed(false);
+    setAds([]);
+  }
 
   const stats = useMemo(
     () => ({
@@ -139,14 +203,28 @@ export default function AdminPage() {
     (a) => !search || a.title.toLowerCase().includes(search.toLowerCase()) || a.user.toLowerCase().includes(search.toLowerCase())
   );
 
-  function setStatus(id: number, status: AdStatus) {
-    setAds((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
+  async function setStatus(id: string, status: AdStatus) {
+    const res = await fetch(`/api/admin/ads/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    if (res.ok) setAds((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
   }
-  function toggleFeature(id: number) {
-    setAds((prev) => prev.map((a) => (a.id === id ? { ...a, featured: !a.featured } : a)));
+  async function toggleFeature(id: string) {
+    const ad = ads.find((a) => a.id === id);
+    if (!ad) return;
+    const featured = !ad.featured;
+    const res = await fetch(`/api/admin/ads/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ featured }),
+    });
+    if (res.ok) setAds((prev) => prev.map((a) => (a.id === id ? { ...a, featured } : a)));
   }
-  function doDelete(id: number) {
-    setAds((prev) => prev.filter((a) => a.id !== id));
+  async function doDelete(id: string) {
+    const res = await fetch(`/api/admin/ads/${id}`, { method: "DELETE" });
+    if (res.ok) setAds((prev) => prev.filter((a) => a.id !== id));
     setConfirmId(null);
   }
 
@@ -167,6 +245,31 @@ export default function AdminPage() {
     { key: "categories", label: t.categoriesNav, icon: Tag },
     { key: "settings", label: t.settingsNav, icon: Settings },
   ];
+
+  if (authed === null) return null;
+
+  if (!authed) {
+    return (
+      <div style={{ background: bg, color: text, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+        <form onSubmit={handleLogin} style={{ background: surface, border: `1px solid ${border}`, borderRadius: 18, padding: 32, maxWidth: 360, width: "100%" }}>
+          <h1 className="disp" style={{ fontSize: 20, fontWeight: 700, margin: "0 0 8px" }}>{t.adminLoginTitle}</h1>
+          <p style={{ fontSize: 13.5, color: textMuted, margin: "0 0 20px" }}>{t.adminLoginSub}</p>
+          <label style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, display: "block" }}>{t.passwordLabel}</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder={t.passwordPh}
+            style={{ width: "100%", background: dark ? "#141B1F" : "#F8F9FA", border: `1px solid ${border}`, borderRadius: 10, padding: "11px 13px", color: text, fontSize: 14.5, outline: "none", marginBottom: loginError ? 8 : 18 }}
+          />
+          {loginError && <div style={{ fontSize: 12.5, color: danger, marginBottom: 14 }}>{t.wrongPassword}</div>}
+          <button type="submit" disabled={loggingIn} className="btn" style={{ width: "100%", background: gold, color: "#1F2937", borderRadius: 12, padding: "13px", fontWeight: 600, fontSize: 15, opacity: loggingIn ? 0.7 : 1 }}>
+            {t.loginBtn}
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div style={{ background: bg, color: text, minHeight: "100vh", display: "flex" }}>
@@ -195,7 +298,7 @@ export default function AdminPage() {
           })}
         </nav>
         <div style={{ padding: 12, borderTop: `1px solid ${border}` }}>
-          <div className="btn" style={{ display: "flex", alignItems: "center", gap: 11, padding: "10px 12px", borderRadius: 10, color: textMuted, fontSize: 14, whiteSpace: "nowrap" }}>
+          <div onClick={handleLogout} className="btn" style={{ display: "flex", alignItems: "center", gap: 11, padding: "10px 12px", borderRadius: 10, color: textMuted, fontSize: 14, whiteSpace: "nowrap" }}>
             <LogOut size={17} /> {t.logout}
           </div>
         </div>
@@ -326,7 +429,7 @@ export default function AdminPage() {
                               {a.title} {a.featured && <Star size={12} color={gold} fill={gold} style={{ marginLeft: 4, verticalAlign: -1 }} />}
                             </td>
                             <td style={{ padding: "12px 16px", color: textMuted }}>{a.user}</td>
-                            <td style={{ padding: "12px 16px", color: textMuted }}>{a.category}</td>
+                            <td style={{ padding: "12px 16px", color: textMuted }}>{a.categoryName ? a.categoryName[`name_${lang}`] : "—"}</td>
                             <td className="mono" style={{ padding: "12px 16px" }}>Rs {fmt(a.price)}</td>
                             <td style={{ padding: "12px 16px" }}>
                               <span style={{ fontSize: 10.5, fontWeight: 600, padding: "4px 9px", borderRadius: 8, background: s.bg, color: s.fg }}>{t[a.status]}</span>
