@@ -231,9 +231,10 @@ create policy "Admins can delete any ad"
   on public.advertisements for delete
   using (public.is_admin());
 
--- Owners can update their own ads, but only admins may change `status`
--- (the "Owners can update their own ads" policy above allows editing other
--- columns; this trigger blocks status changes from anyone but an admin).
+-- Owners can update their own ads, but only admins may change `status` —
+-- with one exception: an owner editing their ad may reset it to "pending"
+-- themselves (e.g. after editing a live ad, so it goes back for re-review).
+-- They still cannot set it to "approved"/"rejected"/"suspended" directly.
 -- The admin panel's API routes use the service_role key (see lib/supabaseAdmin.ts),
 -- which bypasses RLS but NOT triggers, so it must also be allowed here.
 --
@@ -249,6 +250,7 @@ set search_path = public
 as $$
 begin
   if new.status is distinct from old.status
+     and new.status <> 'pending'
      and not public.is_admin()
      and current_user <> 'service_role' then
     raise exception 'Only admins can change advertisement status';
