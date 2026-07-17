@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { UploadCloud, X, Star, MapPin, Phone, Mail, CheckCircle2, ImagePlus } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
-import { AD_CATEGORIES, DISTRICTS, TOWNS } from "@/lib/data";
+import { DISTRICTS, TOWNS } from "@/lib/data";
 import { danger } from "@/lib/theme";
+import { supabase } from "@/lib/supabase";
 
 const dict = {
   en: {
@@ -31,6 +32,7 @@ const dict = {
     successBody: "Our team will review it before publishing.",
     backHome: "Back to home", postAnother: "Post another ad",
     maxImages: "Maximum 10 images allowed",
+    submitError: "Something went wrong while submitting your ad. Please try again.",
   },
   si: {
     formTitle: "දැන්වීමක් පළ කරන්න", formSub: "පහත විස්තර පුරවන්න. අපගේ කණ්ඩායම සෑම දැන්වීමක්ම ප්‍රකාශයට පත් කිරීමට පෙර සමාලෝචනය කරයි.",
@@ -54,6 +56,7 @@ const dict = {
     successBody: "ප්‍රකාශයට පත් කිරීමට පෙර අපගේ කණ්ඩායම එය සමාලෝචනය කරනු ඇත.",
     backHome: "මුල් පිටුවට", postAnother: "තවත් දැන්වීමක් පළ කරන්න",
     maxImages: "උපරිම ඡායාරූප 10ක් පමණි",
+    submitError: "ඔබේ දැන්වීම ඉදිරිපත් කිරීමේදී දෝෂයක් ඇති විය. නැවත උත්සාහ කරන්න.",
   },
   ta: {
     formTitle: "விளம்பரத்தை வெளியிடுங்கள்", formSub: "கீழே உள்ள விவரங்களை நிரப்பவும். வெளியிடுவதற்கு முன் எங்கள் குழு ஒவ்வொரு விளம்பரத்தையும் ஆய்வு செய்கிறது.",
@@ -77,6 +80,7 @@ const dict = {
     successBody: "வெளியிடுவதற்கு முன் எங்கள் குழு அதை மதிப்பாய்வு செய்யும்.",
     backHome: "முகப்புக்கு திரும்பு", postAnother: "மற்றொரு விளம்பரத்தை இடுங்கள்",
     maxImages: "அதிகபட்சம் 10 படங்கள் மட்டுமே அனுமதிக்கப்படும்",
+    submitError: "உங்கள் விளம்பரத்தை சமர்ப்பிக்கும் போது பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.",
   },
 };
 
@@ -107,6 +111,13 @@ interface FormState {
   email: string;
 }
 
+interface CategoryRow {
+  id: number;
+  name_en: string;
+  name_si: string;
+  name_ta: string;
+}
+
 const EMPTY_FORM: FormState = {
   title: "", description: "", category: "", district: "", town: "",
   address: "", mapLink: "", price: "", period: "perDay", quantity: 1, condition: "used",
@@ -124,6 +135,20 @@ export default function CreateAdPage() {
   const [errors, setErrors] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<CategoryRow[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("categories")
+      .select("id, name_en, name_si, name_ta")
+      .order("id")
+      .then(({ data, error }) => {
+        if (!cancelled && !error && data) setCategories(data);
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   const t = dict[lang];
   const { bg, surface, text, textMuted, border, gold } = colors;
@@ -165,11 +190,67 @@ export default function CreateAdPage() {
     return Object.keys(errs).length === 0;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
     setSubmitting(true);
-    setTimeout(() => { setSubmitting(false); setSubmitted(true); }, 900);
+    setSubmitError(null);
+
+    try {
+      const { data: ad, error: insertError } = await supabase
+        .from("advertisements")
+        .insert({
+          title: form.title,
+          description: form.description,
+          category_id: form.category ? Number(form.category) : null,
+          district: form.district,
+          town: form.town,
+          price: Number(form.price),
+          rental_period: form.period,
+          quantity: Number(form.quantity) || 1,
+          condition: form.condition,
+          contact_name: form.contactName,
+          phone: form.phone,
+          whatsapp: form.whatsapp || null,
+          email: form.email || null,
+          address: form.address || null,
+          map_link: form.mapLink || null,
+          status: "pending",
+        })
+        .select("id")
+        .single();
+
+      if (insertError) throw insertError;
+
+      if (images.length > 0) {
+        const rows = [];
+        for (let idx = 0; idx < images.length; idx++) {
+          const img = images[idx];
+          const ext = img.file.name.split(".").pop();
+          const path = `${ad.id}/${img.id}.${ext}`;
+          const { error: uploadError } = await supabase.storage
+            .from("advertisement-images")
+            .upload(path, img.file);
+          if (uploadError) throw uploadError;
+          const { data: pub } = supabase.storage.from("advertisement-images").getPublicUrl(path);
+          rows.push({
+            advertisement_id: ad.id,
+            image_url: pub.publicUrl,
+            is_cover: idx === coverIndex,
+            sort_order: idx,
+          });
+        }
+        const { error: imagesError } = await supabase.from("advertisement_images").insert(rows);
+        if (imagesError) throw imagesError;
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error(err);
+      setSubmitError(t.submitError);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function resetForm() {
@@ -177,10 +258,9 @@ export default function CreateAdPage() {
     setImages([]);
     setCoverIndex(0);
     setErrors({});
+    setSubmitError(null);
     setSubmitted(false);
   }
-
-  const categoryList = AD_CATEGORIES[lang];
 
   if (submitted) {
     return (
@@ -221,7 +301,7 @@ export default function CreateAdPage() {
             <label style={labelStyle}>{t.category} *</label>
             <select value={form.category} onChange={(e) => update("category", e.target.value)} style={fieldStyle(errors.category)}>
               <option value="">{t.selectCategory}</option>
-              {categoryList.map((c) => <option key={c} value={c}>{c}</option>)}
+              {categories.map((c) => <option key={c.id} value={c.id}>{c[`name_${lang}`]}</option>)}
             </select>
             {errors.category && <FieldError text={t.required} />}
           </div>
@@ -375,6 +455,10 @@ export default function CreateAdPage() {
             </div>
           )}
         </Section>
+
+        {submitError && (
+          <div style={{ fontSize: 13.5, color: danger, marginBottom: 14, textAlign: "center" }}>{submitError}</div>
+        )}
 
         <button type="submit" disabled={submitting} className="btn" style={{
           width: "100%", background: gold, color: "#1F2937", borderRadius: 14, padding: "16px",
