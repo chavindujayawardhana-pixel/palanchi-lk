@@ -28,12 +28,14 @@ export function LanguageSwitcher({ compact = true }: LanguageSwitcherProps) {
           display: "flex",
           alignItems: "center",
           gap: 6,
+          height: compact ? 36 : 38,
           background: "transparent",
           border: `1px solid ${colors.border}`,
           borderRadius: 10,
-          padding: "8px 12px",
+          padding: "0 12px",
           color: colors.text,
           fontSize,
+          lineHeight: 1,
         }}
       >
         <Globe size={globeSize} /> {LANGS[lang]} <ChevronDown size={chevSize} />
