@@ -135,7 +135,17 @@ export function Navbar({
             className="btn mobile-nav"
             onClick={() => setMenuOpen((o) => !o)}
             aria-label="Toggle menu"
-            style={{ background: "transparent", border: "none", color: colors.text, display: "none" }}
+            style={{
+              width: darkSize,
+              height: darkSize,
+              padding: 0,
+              background: "transparent",
+              border: "none",
+              color: colors.text,
+              display: "none",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
             {menuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
