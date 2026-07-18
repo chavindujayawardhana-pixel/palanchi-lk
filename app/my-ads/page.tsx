@@ -104,7 +104,7 @@ function MyAdsPageInner() {
             <h1 className="disp" style={{ fontSize: 26, fontWeight: 700, margin: "0 0 6px" }}>{t.pageTitle}</h1>
             <p style={{ fontSize: 14.5, color: textMuted, margin: 0 }}>{t.pageSub}</p>
           </div>
-          <Link href="/create-ad" className="btn" style={{ display: "flex", alignItems: "center", gap: 6, background: gold, color: "#1F2937", borderRadius: 10, padding: "10px 18px", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>
+          <Link href="/create-ad" className="btn" style={{ display: "flex", alignItems: "center", gap: 6, background: gold, color: "#1F2937", borderRadius: 10, padding: "10px 18px", fontSize: 14, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>
             <Plus size={16} /> {t.postOne}
           </Link>
         </div>
@@ -118,7 +118,7 @@ function MyAdsPageInner() {
         {!loadingAds && ads.length === 0 ? (
           <div style={{ textAlign: "center", padding: "80px 20px", background: surface, border: `1px dashed ${border}`, borderRadius: 16 }}>
             <div style={{ fontSize: 15, color: textMuted, marginBottom: 16 }}>{t.noAds}</div>
-            <Link href="/create-ad" className="btn" style={{ display: "inline-block", background: gold, color: "#1F2937", borderRadius: 10, padding: "10px 20px", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>
+            <Link href="/create-ad" className="btn" style={{ display: "inline-block", background: gold, color: "#1F2937", borderRadius: 10, padding: "10px 20px", fontSize: 14, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>
               {t.postOne}
             </Link>
           </div>

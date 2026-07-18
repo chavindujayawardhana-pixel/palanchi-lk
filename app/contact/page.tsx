@@ -136,7 +136,7 @@ export default function ContactPage() {
         logoProps={{ fontSize: 20 }}
         right={
           <>
-            <Link href="/create-ad" className="btn" style={{ background: gold, color: "#1F2937", borderRadius: 10, padding: "9px 16px", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+            <Link href="/create-ad" className="btn desktop-nav" style={{ background: gold, color: "#1F2937", borderRadius: 10, padding: "9px 16px", fontSize: 13.5, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>
               {t.navCreate}
             </Link>
             <AuthNav />
