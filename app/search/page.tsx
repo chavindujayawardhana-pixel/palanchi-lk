@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Search, MapPin, SlidersHorizontal, ArrowUpDown } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
@@ -53,13 +54,22 @@ const dict = {
 type SearchDict = (typeof dict)[Lang];
 
 export default function SearchPage() {
+  return (
+    <Suspense fallback={null}>
+      <SearchPageInner />
+    </Suspense>
+  );
+}
+
+function SearchPageInner() {
   const { lang, dark, colors } = useTheme();
+  const searchParams = useSearchParams();
   const [filtersOpen, setFiltersOpen] = useState(true);
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
   const [category, setCategory] = useState("");
-  const [district, setDistrict] = useState("");
-  const [town, setTown] = useState("");
+  const [district, setDistrict] = useState(() => searchParams.get("district") ?? "");
+  const [town, setTown] = useState(() => searchParams.get("town") ?? "");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [sort, setSort] = useState("newest");

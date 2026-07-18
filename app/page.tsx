@@ -13,6 +13,7 @@ import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
 import { AuthNav } from "@/components/AuthNav";
 import { useAuth } from "@/components/AuthProvider";
+import { TownField } from "@/components/TownField";
 import { CATEGORIES, DISTRICTS, type Period } from "@/lib/data";
 import { fetchApprovedAds, type LiveAd } from "@/lib/ads";
 import { fmt } from "@/lib/format";
@@ -24,7 +25,7 @@ const dict = {
     heroTitle: "Rent anything, from anyone, anywhere in Sri Lanka",
     heroSub: "Scaffolding, machinery, vehicles and tools — find gear near you or list what you own.",
     searchPlaceholder: "What are you looking for? e.g. Generator, Backhoe...",
-    searchDistrict: "District", searchBtn: "Search",
+    searchDistrict: "District", searchTown: "Town", searchBtn: "Search",
     popularCategories: "Popular categories", browseAll: "Browse all",
     featured: "Featured listings", latest: "Latest listings", viewAll: "View all",
     perDay: "/ day", perHour: "/ hour", perWeek: "/ week", perMonth: "/ month",
@@ -40,7 +41,7 @@ const dict = {
     heroTitle: "ශ්‍රී ලංකාව පුරා ඕනෑම දෙයක් කුලියට ගන්න",
     heroSub: "ස්කැෆෝල්ඩිං, යන්ත්‍රෝපකරණ, වාහන සහ මෙවලම් — ඔබ අසල සොයන්න හෝ ඔබේ දේ ලැයිස්තුගත කරන්න.",
     searchPlaceholder: "ඔබ සොයන්නේ කුමක්ද? උදා: ජනරේටරය, බැක්හෝ...",
-    searchDistrict: "දිස්ත්‍රික්කය", searchBtn: "සොයන්න",
+    searchDistrict: "දිස්ත්‍රික්කය", searchTown: "නගරය", searchBtn: "සොයන්න",
     popularCategories: "ජනප්‍රිය කාණ්ඩ", browseAll: "සියල්ල බලන්න",
     featured: "විශේෂාංගිත දැන්වීම්", latest: "නවතම දැන්වීම්", viewAll: "සියල්ල බලන්න",
     perDay: "/ දිනකට", perHour: "/ පැයකට", perWeek: "/ සතියකට", perMonth: "/ මාසයකට",
@@ -56,7 +57,7 @@ const dict = {
     heroTitle: "இலங்கை முழுவதும் எதையும் யாரிடமிருந்தும் வாடகைக்கு பெறுங்கள்",
     heroSub: "ஸ்கஃபோல்டிங், இயந்திரங்கள், வாகனங்கள் மற்றும் கருவிகள் — உங்களுக்கு அருகில் தேடுங்கள் அல்லது உங்களுடையதை பட்டியலிடுங்கள்.",
     searchPlaceholder: "நீங்கள் தேடுவது என்ன? உதா: ஜெனரேட்டர், பேக்ஹோ...",
-    searchDistrict: "மாவட்டம்", searchBtn: "தேடு",
+    searchDistrict: "மாவட்டம்", searchTown: "நகரம்", searchBtn: "தேடு",
     popularCategories: "பிரபலமான வகைகள்", browseAll: "அனைத்தையும் பார்க்க",
     featured: "சிறப்பு பட்டியல்கள்", latest: "புதிய பட்டியல்கள்", viewAll: "அனைத்தையும் பார்க்க",
     perDay: "/ நாள்", perHour: "/ மணி", perWeek: "/ வாரம்", perMonth: "/ மாதம்",
@@ -78,6 +79,7 @@ export default function HomePage() {
   const [menuModal, setMenuModal] = useState(false);
   const [query, setQuery] = useState("");
   const [district, setDistrict] = useState("");
+  const [town, setTown] = useState("");
   const [ads, setAds] = useState<LiveAd[]>([]);
 
   useEffect(() => {
@@ -90,6 +92,15 @@ export default function HomePage() {
 
   const t = dict[lang];
   const { surface, text, textMuted, border, gold, teal } = colors;
+
+  const goToSearch = () => {
+    const params = new URLSearchParams();
+    if (query) params.set("q", query);
+    if (district) params.set("district", district);
+    if (town) params.set("town", town);
+    const qs = params.toString();
+    router.push(qs ? `/search?${qs}` : "/search");
+  };
 
   const homeAds = ads.slice(0, 12);
 
@@ -128,7 +139,10 @@ export default function HomePage() {
         </h1>
         <p style={{ fontSize: 17, color: textMuted, maxWidth: 560, margin: "0 auto 36px" }}>{t.heroSub}</p>
 
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, background: surface, border: `1px solid ${border}`, borderRadius: 16, padding: 10, maxWidth: 760, margin: "0 auto", boxShadow: "0 8px 30px rgba(0,0,0,0.06)" }}>
+        <form
+          onSubmit={(e) => { e.preventDefault(); goToSearch(); }}
+          style={{ display: "flex", flexWrap: "wrap", gap: 8, background: surface, border: `1px solid ${border}`, borderRadius: 16, padding: 10, maxWidth: 760, margin: "0 auto", boxShadow: "0 8px 30px rgba(0,0,0,0.06)" }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: 8, flex: "1 1 260px", padding: "8px 10px" }}>
             <Search size={18} color={textMuted} />
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t.searchPlaceholder}
@@ -136,16 +150,26 @@ export default function HomePage() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, borderLeft: `1px solid ${border}`, padding: "8px 10px", flex: "0 1 180px" }}>
             <MapPin size={18} color={textMuted} />
-            <select value={district} onChange={(e) => setDistrict(e.target.value)}
+            <select value={district} onChange={(e) => { setDistrict(e.target.value); setTown(""); }}
               style={{ border: "none", outline: "none", background: "transparent", color: text, fontSize: 15, width: "100%" }}>
               <option value="">{t.searchDistrict}</option>
               {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
             </select>
           </div>
-          <button className="btn" style={{ background: gold, color: "#1F2937", borderRadius: 12, padding: "12px 26px", fontWeight: 600, fontSize: 15 }}>
+          <div style={{ borderLeft: `1px solid ${border}`, padding: "8px 10px", flex: "0 1 180px" }}>
+            <TownField
+              district={district}
+              value={town}
+              onChange={setTown}
+              placeholder={t.searchTown}
+              disabled={!district}
+              inputStyle={{ border: "none", outline: "none", background: "transparent", color: text, fontSize: 15, width: "100%", opacity: district ? 1 : 0.5 }}
+            />
+          </div>
+          <button type="submit" className="btn" style={{ background: gold, color: "#1F2937", borderRadius: 12, padding: "12px 26px", fontWeight: 600, fontSize: 15 }}>
             {t.searchBtn}
           </button>
-        </div>
+        </form>
       </section>
 
       {/* CATEGORIES */}
