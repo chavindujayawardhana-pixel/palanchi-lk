@@ -90,13 +90,12 @@ export function Navbar({
         style={{
           maxWidth,
           margin: "0 auto",
-          padding: "14px 24px",
+          padding: "14px var(--nav-pad-x, 24px)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: 16,
-          flexWrap: "wrap",
-          rowGap: 8,
+          gap: "var(--nav-gap, 16px)",
+          flexWrap: "nowrap",
         }}
       >
         <Logo {...logoProps} />
@@ -127,17 +126,17 @@ export function Navbar({
 
         {center}
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--nav-right-gap, 10px)", flexShrink: 0 }}>
           <LanguageSwitcher compact={langCompact} />
           <DarkModeToggle size={darkSize} iconSize={darkIcon} />
           {right}
           <button
-            className="btn mobile-nav"
+            className="btn mobile-nav nav-icon-btn"
             onClick={() => setMenuOpen((o) => !o)}
             aria-label="Toggle menu"
             style={{
-              width: darkSize,
-              height: darkSize,
+              width: `var(--nav-control-size, ${darkSize}px)`,
+              height: `var(--nav-control-size, ${darkSize}px)`,
               padding: 0,
               background: "transparent",
               border: "none",
@@ -145,6 +144,7 @@ export function Navbar({
               display: "none",
               alignItems: "center",
               justifyContent: "center",
+              flexShrink: 0,
             }}
           >
             {menuOpen ? <X size={22} /> : <Menu size={22} />}

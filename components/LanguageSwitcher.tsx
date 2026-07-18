@@ -22,23 +22,24 @@ export function LanguageSwitcher({ compact = true }: LanguageSwitcherProps) {
   return (
     <div style={{ position: "relative" }}>
       <button
-        className="btn"
+        className="btn nav-lang-btn"
         onClick={() => setOpen((o) => !o)}
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 6,
-          height: compact ? 36 : 38,
+          gap: "var(--nav-lang-gap, 6px)",
+          height: `var(--nav-lang-height, ${compact ? 36 : 38}px)`,
           background: "transparent",
           border: `1px solid ${colors.border}`,
           borderRadius: 10,
-          padding: "0 12px",
+          padding: "0 var(--nav-lang-pad-x, 12px)",
           color: colors.text,
-          fontSize,
+          fontSize: `var(--nav-lang-font, ${fontSize}px)`,
           lineHeight: 1,
+          whiteSpace: "nowrap",
         }}
       >
-        <Globe size={globeSize} /> {LANGS[lang]} <ChevronDown size={chevSize} />
+        <Globe size={globeSize} /> <span className="nav-lang-label">{LANGS[lang]}</span> <ChevronDown size={chevSize} />
       </button>
       {open && (
         <div

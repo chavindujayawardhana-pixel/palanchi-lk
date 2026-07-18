@@ -13,12 +13,12 @@ export function DarkModeToggle({ size = 36, iconSize = 16 }: DarkModeToggleProps
   const { dark, toggleDark, colors } = useTheme();
   return (
     <button
-      className="btn"
+      className="btn nav-icon-btn"
       onClick={toggleDark}
       aria-label="Toggle dark mode"
       style={{
-        width: size,
-        height: size,
+        width: `var(--nav-control-size, ${size}px)`,
+        height: `var(--nav-control-size, ${size}px)`,
         borderRadius: 10,
         background: "transparent",
         border: `1px solid ${colors.border}`,
@@ -26,6 +26,7 @@ export function DarkModeToggle({ size = 36, iconSize = 16 }: DarkModeToggleProps
         alignItems: "center",
         justifyContent: "center",
         color: colors.text,
+        flexShrink: 0,
       }}
     >
       {dark ? <Sun size={iconSize} /> : <Moon size={iconSize} />}

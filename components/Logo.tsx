@@ -22,17 +22,20 @@ export function Logo({ boxSize = 30, iconSize = 16, fontSize = 20, href = "/" }:
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 8,
+        gap: `var(--nav-logo-gap, ${8}px)`,
         fontWeight: 700,
-        fontSize,
+        fontSize: `var(--nav-logo-font, ${fontSize}px)`,
         color: colors.text,
         textDecoration: "none",
+        whiteSpace: "nowrap",
+        flexShrink: 0,
       }}
     >
       <div
+        className="nav-logo-icon"
         style={{
-          width: boxSize,
-          height: boxSize,
+          width: `var(--nav-logo-box, ${boxSize}px)`,
+          height: `var(--nav-logo-box, ${boxSize}px)`,
           borderRadius: boxSize >= 34 ? 10 : 9,
           background: gold,
           display: "flex",

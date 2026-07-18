@@ -76,6 +76,74 @@ textarea:focus {
   }
 }
 
+/*
+ * Keeps the navbar (logo + language/theme/menu controls) on a single row on
+ * every phone width instead of wrapping to a second line. The nav components
+ * consume these custom properties via var(--x, <jsDefault>), so on screens
+ * wider than 480px nothing changes — the fallback (the per-page prop value)
+ * still applies. Below 480px/360px these redefine the properties, shrinking
+ * padding/gaps/sizes uniformly regardless of what a given page passed in.
+ */
+@media (max-width: 480px) {
+  :root {
+    --nav-pad-x: 12px;
+    --nav-gap: 8px;
+    --nav-right-gap: 6px;
+    --nav-logo-gap: 5px;
+    --nav-logo-box: 26px;
+    --nav-logo-font: 15px;
+    --nav-lang-gap: 4px;
+    --nav-lang-pad-x: 8px;
+    --nav-lang-font: 12px;
+    --nav-lang-height: 32px;
+    --nav-control-size: 32px;
+  }
+  .nav-logo-icon svg {
+    width: 13px;
+    height: 13px;
+  }
+  .nav-lang-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+  .nav-icon-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --nav-pad-x: 8px;
+    --nav-gap: 6px;
+    --nav-right-gap: 4px;
+    --nav-logo-gap: 4px;
+    --nav-logo-box: 22px;
+    --nav-logo-font: 13px;
+    --nav-lang-gap: 3px;
+    --nav-lang-pad-x: 6px;
+    --nav-lang-font: 11px;
+    --nav-lang-height: 30px;
+    --nav-control-size: 28px;
+  }
+  .nav-logo-icon svg {
+    width: 11px;
+    height: 11px;
+  }
+  .nav-lang-btn svg {
+    width: 11px;
+    height: 11px;
+  }
+  .nav-icon-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+  /* English/Sinhala/Tamil labels can be wide — icon + chevron only at this size. */
+  .nav-lang-label {
+    display: none;
+  }
+}
+
 @media (max-width: 900px) {
   .chart-grid {
     grid-template-columns: 1fr !important;
