@@ -30,6 +30,7 @@ const dict = {
     manageAds: "Manage advertisements", manageUsers: "Manage users", manageCategories: "Manage categories",
     listing: "Listing", user: "User", category: "Category", location: "Location", price: "Price", date: "Date",
     confirmDelete: "Delete this listing? This cannot be undone.", cancel: "Cancel", confirm: "Confirm",
+    confirmDeleteUser: "Delete this user's account? This permanently removes their login and cannot be undone.",
     addCategory: "Add category", categoryName: "Category name", adCount: "Ads",
     adminPanel: "ADMIN PANEL", nameCol: "Name", emailCol: "Email", townCol: "Town", districtCol: "District", phoneCol: "Phone",
     settingsPlaceholder: "Settings — prototype placeholder",
@@ -54,6 +55,7 @@ const dict = {
     manageAds: "දැන්වීම් කළමනාකරණය", manageUsers: "පරිශීලකයන් කළමනාකරණය", manageCategories: "කාණ්ඩ කළමනාකරණය",
     listing: "දැන්වීම", user: "පරිශීලකයා", category: "කාණ්ඩය", location: "ස්ථානය", price: "මිල", date: "දිනය",
     confirmDelete: "මෙම දැන්වීම මකන්නද? මෙය අහෝසි කළ නොහැක.", cancel: "අවලංගු කරන්න", confirm: "තහවුරු කරන්න",
+    confirmDeleteUser: "මෙම පරිශීලකයාගේ ගිණුම මකන්නද? මෙය ඔවුන්ගේ පිවිසුම ස්ථිරවම ඉවත් කරන අතර අහෝසි කළ නොහැක.",
     addCategory: "කාණ්ඩයක් එකතු කරන්න", categoryName: "කාණ්ඩයේ නම", adCount: "දැන්වීම්",
     adminPanel: "පරිපාලක පැනලය", nameCol: "නම", emailCol: "විද්‍යුත් තැපෑල", townCol: "නගරය", districtCol: "දිස්ත්‍රික්කය", phoneCol: "දුරකථනය",
     settingsPlaceholder: "සැකසුම් — මූලාකෘති ස්ථානගත කරන්නා",
@@ -78,6 +80,7 @@ const dict = {
     manageAds: "விளம்பரங்களை நிர்வகி", manageUsers: "பயனர்களை நிர்வகி", manageCategories: "வகைகளை நிர்வகி",
     listing: "பட்டியல்", user: "பயனர்", category: "வகை", location: "இடம்", price: "விலை", date: "தேதி",
     confirmDelete: "இந்த பட்டியலை நீக்கவா? இதை மீட்டெடுக்க முடியாது.", cancel: "ரத்து செய்", confirm: "உறுதிப்படுத்து",
+    confirmDeleteUser: "இந்த பயனரின் கணக்கை நீக்கவா? இது அவர்களின் உள்நுழைவை நிரந்தரமாக அகற்றும், மீட்டெடுக்க முடியாது.",
     addCategory: "வகையைச் சேர்", categoryName: "வகையின் பெயர்", adCount: "விளம்பரங்கள்",
     adminPanel: "நிர்வாக பலகம்", nameCol: "பெயர்", emailCol: "மின்னஞ்சல்", townCol: "நகரம்", districtCol: "மாவட்டம்", phoneCol: "தொலைபேசி",
     settingsPlaceholder: "அமைப்புகள் — மாதிரி ஒதுக்கிடம்",
@@ -250,6 +253,7 @@ export default function AdminPage() {
   const [messages, setMessages] = useState<AdminMessage[]>([]);
   const [search, setSearch] = useState("");
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [confirmUserId, setConfirmUserId] = useState<string | null>(null);
   const [viewAd, setViewAd] = useState<AdminAd | null>(null);
   const [viewMessage, setViewMessage] = useState<AdminMessage | null>(null);
   const [authed, setAuthed] = useState<boolean | null>(null);
@@ -374,6 +378,12 @@ export default function AdminPage() {
     const res = await fetch(`/api/admin/ads/${id}`, { method: "DELETE" });
     if (res.ok) setAds((prev) => prev.filter((a) => a.id !== id));
     setConfirmId(null);
+  }
+
+  async function doDeleteUser(id: string) {
+    const res = await fetch(`/api/admin/users/${id}`, { method: "DELETE" });
+    if (res.ok) setUsers((prev) => prev.filter((u) => u.id !== id));
+    setConfirmUserId(null);
   }
 
   const statusStyle = (status: AdStatus) => {
@@ -632,10 +642,10 @@ export default function AdminPage() {
               ) : (
                 <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 16, overflow: "hidden" }}>
                   <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, minWidth: 820 }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, minWidth: 900 }}>
                       <thead>
                         <tr style={{ borderBottom: `1px solid ${border}` }}>
-                          {[t.nameCol, t.emailCol, t.phoneCol, t.districtCol, t.townCol, t.joined, t.adCount].map((h, i) => (
+                          {[t.nameCol, t.emailCol, t.phoneCol, t.districtCol, t.townCol, t.joined, t.adCount, t.actions].map((h, i) => (
                             <th key={i} style={{ textAlign: "left", padding: "12px 16px", fontSize: 11.5, fontWeight: 600, color: textMuted, letterSpacing: 0.3 }}>{h.toUpperCase()}</th>
                           ))}
                         </tr>
@@ -650,6 +660,9 @@ export default function AdminPage() {
                             <td style={{ padding: "12px 16px", color: textMuted }}>{u.town}</td>
                             <td style={{ padding: "12px 16px", color: textMuted }}>{u.joined}</td>
                             <td className="mono" style={{ padding: "12px 16px" }}>{u.ads}</td>
+                            <td style={{ padding: "12px 16px" }}>
+                              <IconBtn title={t.deleteA} onClick={() => setConfirmUserId(u.id)} color={danger} Icon={Trash2} border={border} />
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -747,6 +760,18 @@ export default function AdminPage() {
             <div style={{ display: "flex", gap: 10 }}>
               <button className="btn" onClick={() => setConfirmId(null)} style={{ flex: 1, background: "transparent", border: `1px solid ${border}`, color: text, borderRadius: 10, padding: "11px" }}>{t.cancel}</button>
               <button className="btn" onClick={() => doDelete(confirmId)} style={{ flex: 1, background: danger, color: "#fff", borderRadius: 10, padding: "11px", fontWeight: 600 }}>{t.confirm}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmUserId && (
+        <div onClick={() => setConfirmUserId(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: 20 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: surface, borderRadius: 18, padding: 26, maxWidth: 360, width: "100%" }}>
+            <p style={{ fontSize: 14.5, marginBottom: 20 }}>{t.confirmDeleteUser}</p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button className="btn" onClick={() => setConfirmUserId(null)} style={{ flex: 1, background: "transparent", border: `1px solid ${border}`, color: text, borderRadius: 10, padding: "11px" }}>{t.cancel}</button>
+              <button className="btn" onClick={() => doDeleteUser(confirmUserId)} style={{ flex: 1, background: danger, color: "#fff", borderRadius: 10, padding: "11px", fontWeight: 600 }}>{t.confirm}</button>
             </div>
           </div>
         </div>
