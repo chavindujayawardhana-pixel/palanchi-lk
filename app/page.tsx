@@ -1,312 +1,53 @@
-"use client";
+import type { Metadata } from "next";
+import { HomeClient } from "./HomeClient";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
 
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import {
-  Search,
-  MapPin,
-  ArrowRight,
-  Plus,
-} from "lucide-react";
-import { Navbar } from "@/components/Navbar";
-import { useTheme } from "@/components/ThemeProvider";
-import { AuthNav } from "@/components/AuthNav";
-import { useAuth } from "@/components/AuthProvider";
-import { TownField } from "@/components/TownField";
-import { CATEGORIES, DISTRICTS, type Period } from "@/lib/data";
-import { fetchApprovedAds, type LiveAd } from "@/lib/ads";
-import { fmt } from "@/lib/format";
-import type { Lang } from "@/lib/i18n";
+const title = "Palanchi.lk - Sri Lanka's Rental Marketplace for Equipment, Machinery & Tools";
+const description =
+  "Rent scaffolding, machinery, generators, vehicles and tools from anyone, anywhere in Sri Lanka — or list your own equipment for free. Covering all 25 districts.";
 
-const dict = {
-  en: {
-    navHome: "Home", navCreate: "Create ad", navContact: "Contact", login: "Log in",
-    heroTitle: "Rent anything, from anyone, anywhere in Sri Lanka",
-    heroSub: "Scaffolding, machinery, vehicles and tools — find gear near you or list what you own.",
-    searchPlaceholder: "What are you looking for? e.g. Generator, Backhoe...",
-    searchDistrict: "District", searchTown: "Town", searchBtn: "Search",
-    popularCategories: "Popular categories", browseAll: "Browse all",
-    featured: "Featured listings", latest: "Latest listings", viewAll: "View all",
-    perDay: "/ day", perHour: "/ hour", perWeek: "/ week", perMonth: "/ month",
-    footerTag: "Sri Lanka's rental marketplace for equipment, machinery and tools.",
-    fQuick: "Quick links", fCategories: "Categories", fSupport: "Support",
-    fPrivacy: "Privacy policy", fTerms: "Terms of service", fContact: "Contact us",
-    copyright: "© 2026 Palanchi.lk", madeBy: "Made with care by Chavindu Jayawardana",
-    condition: "Used", conditionNew: "New",
-    noAdsYet: "No listings yet. Be the first to post one!",
-  },
-  si: {
-    navHome: "මුල් පිටුව", navCreate: "දැන්වීමක් පළ කරන්න", navContact: "අමතන්න", login: "පිවිසෙන්න",
-    heroTitle: "ශ්‍රී ලංකාව පුරා ඕනෑම දෙයක් කුලියට ගන්න",
-    heroSub: "ස්කැෆෝල්ඩිං, යන්ත්‍රෝපකරණ, වාහන සහ මෙවලම් — ඔබ අසල සොයන්න හෝ ඔබේ දේ ලැයිස්තුගත කරන්න.",
-    searchPlaceholder: "ඔබ සොයන්නේ කුමක්ද? උදා: ජනරේටරය, බැක්හෝ...",
-    searchDistrict: "දිස්ත්‍රික්කය", searchTown: "නගරය", searchBtn: "සොයන්න",
-    popularCategories: "ජනප්‍රිය කාණ්ඩ", browseAll: "සියල්ල බලන්න",
-    featured: "විශේෂාංගිත දැන්වීම්", latest: "නවතම දැන්වීම්", viewAll: "සියල්ල බලන්න",
-    perDay: "/ දිනකට", perHour: "/ පැයකට", perWeek: "/ සතියකට", perMonth: "/ මාසයකට",
-    footerTag: "යන්ත්‍රෝපකරණ හා මෙවලම් සඳහා ශ්‍රී ලංකාවේ කුලී වෙළඳපොල.",
-    fQuick: "ඉක්මන් සබැඳි", fCategories: "කාණ්ඩ", fSupport: "සහාය",
-    fPrivacy: "පෞද්ගලිකත්ව ප්‍රතිපත්තිය", fTerms: "සේවා නියම", fContact: "අප අමතන්න",
-    copyright: "© 2026 Palanchi.lk", madeBy: "Chavindu Jayawardana විසින් සකසන ලදී",
-    condition: "පරණ", conditionNew: "අලුත්",
-    noAdsYet: "තවම දැන්වීම් නැත. පළමු වන්නා වන්න!",
-  },
-  ta: {
-    navHome: "முகப்பு", navCreate: "விளம்பரம் இடு", navContact: "தொடர்பு", login: "உள்நுழை",
-    heroTitle: "இலங்கை முழுவதும் எதையும் யாரிடமிருந்தும் வாடகைக்கு பெறுங்கள்",
-    heroSub: "ஸ்கஃபோல்டிங், இயந்திரங்கள், வாகனங்கள் மற்றும் கருவிகள் — உங்களுக்கு அருகில் தேடுங்கள் அல்லது உங்களுடையதை பட்டியலிடுங்கள்.",
-    searchPlaceholder: "நீங்கள் தேடுவது என்ன? உதா: ஜெனரேட்டர், பேக்ஹோ...",
-    searchDistrict: "மாவட்டம்", searchTown: "நகரம்", searchBtn: "தேடு",
-    popularCategories: "பிரபலமான வகைகள்", browseAll: "அனைத்தையும் பார்க்க",
-    featured: "சிறப்பு பட்டியல்கள்", latest: "புதிய பட்டியல்கள்", viewAll: "அனைத்தையும் பார்க்க",
-    perDay: "/ நாள்", perHour: "/ மணி", perWeek: "/ வாரம்", perMonth: "/ மாதம்",
-    footerTag: "உபகரணங்கள், இயந்திரங்கள் மற்றும் கருவிகளுக்கான இலங்கையின் வாடகை சந்தை.",
-    fQuick: "விரைவு இணைப்புகள்", fCategories: "வகைகள்", fSupport: "ஆதரவு",
-    fPrivacy: "தனியுரிமைக் கொள்கை", fTerms: "சேவை விதிமுறைகள்", fContact: "எங்களை தொடர்பு கொள்ள",
-    copyright: "© 2026 Palanchi.lk", madeBy: "Chavindu Jayawardana ஆல் உருவாக்கப்பட்டது",
-    condition: "பழையது", conditionNew: "புதியது",
-    noAdsYet: "இன்னும் விளம்பரங்கள் இல்லை. முதலில் பதிவு செய்யுங்கள்!",
-  },
+export const metadata: Metadata = {
+  title,
+  description,
+  alternates: { canonical: "/" },
+  openGraph: { title, description, url: SITE_URL, type: "website" },
+  twitter: { card: "summary_large_image", title, description },
 };
 
-type HomeDict = (typeof dict)[Lang];
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+      url: SITE_URL,
+      logo: `${SITE_URL}/apple-icon.png`,
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      name: SITE_NAME,
+      url: SITE_URL,
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `${SITE_URL}/search?q={search_term_string}`,
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ],
+};
 
 export default function HomePage() {
-  const { lang, dark, colors } = useTheme();
-  const { user } = useAuth();
-  const router = useRouter();
-  const [menuModal, setMenuModal] = useState(false);
-  const [query, setQuery] = useState("");
-  const [district, setDistrict] = useState("");
-  const [town, setTown] = useState("");
-  const [ads, setAds] = useState<LiveAd[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchApprovedAds().then((data) => {
-      if (!cancelled) setAds(data);
-    });
-    return () => { cancelled = true; };
-  }, []);
-
-  const t = dict[lang];
-  const { surface, text, textMuted, border, gold, teal } = colors;
-
-  const goToSearch = () => {
-    const params = new URLSearchParams();
-    if (query) params.set("q", query);
-    if (district) params.set("district", district);
-    if (town) params.set("town", town);
-    const qs = params.toString();
-    router.push(qs ? `/search?${qs}` : "/search");
-  };
-
-  const homeAds = ads.slice(0, 12);
-
-  const filteredAds = useMemo(
-    () =>
-      homeAds.filter(
-        (a) =>
-          (!query || a.title.toLowerCase().includes(query.toLowerCase())) &&
-          (!district || a.district === district)
-      ),
-    [homeAds, query, district]
-  );
-
-  const featured = filteredAds.filter((a) => a.featured);
-  const latest = filteredAds;
-
   return (
-    <div style={{ background: colors.bg, color: text, minHeight: "100vh", transition: "background .3s, color .3s" }}>
-      <Navbar
-        logoProps={{ boxSize: 34, iconSize: 18, fontSize: 22 }}
-        langCompact={false}
-        darkSize={38}
-        darkIcon={17}
-        links={[
-          { label: t.navHome, href: "/" },
-          { label: t.navCreate, onClick: () => (user ? router.push("/create-ad") : setMenuModal(true)) },
-          { label: t.navContact, href: "/contact" },
-        ]}
-        right={<AuthNav />}
+    <>
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-
-      {/* HERO */}
-      <section style={{ maxWidth: 1240, margin: "0 auto", padding: "64px 24px 40px", textAlign: "center" }}>
-        <h1 className="disp" style={{ fontSize: "clamp(32px,5vw,52px)", fontWeight: 700, lineHeight: 1.15, margin: "0 0 18px", maxWidth: 760, marginInline: "auto" }}>
-          {t.heroTitle}
-        </h1>
-        <p style={{ fontSize: 17, color: textMuted, maxWidth: 560, margin: "0 auto 36px" }}>{t.heroSub}</p>
-
-        <form
-          onSubmit={(e) => { e.preventDefault(); goToSearch(); }}
-          className="hero-search-bar"
-          style={{ display: "flex", flexWrap: "nowrap", gap: 8, background: surface, border: `1px solid ${border}`, borderRadius: 16, padding: 10, maxWidth: 860, margin: "0 auto", boxShadow: "0 8px 30px rgba(0,0,0,0.06)" }}
-        >
-          <div className="hero-field hero-field-query" style={{ display: "flex", alignItems: "center", gap: 8, flex: "1 1 200px", minWidth: 0, padding: "8px 10px" }}>
-            <Search size={18} color={textMuted} />
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t.searchPlaceholder}
-              style={{ border: "none", outline: "none", background: "transparent", color: text, fontSize: 15, width: "100%", minWidth: 0 }} />
-          </div>
-          <div className="hero-field hero-field-side" style={{ display: "flex", alignItems: "center", gap: 8, borderLeft: `1px solid ${border}`, padding: "8px 10px", flex: "0 0 150px" }}>
-            <MapPin size={18} color={textMuted} />
-            <select value={district} onChange={(e) => { setDistrict(e.target.value); setTown(""); }}
-              style={{ border: "none", outline: "none", background: "transparent", color: text, fontSize: 15, width: "100%" }}>
-              <option value="">{t.searchDistrict}</option>
-              {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
-            </select>
-          </div>
-          <div className="hero-field hero-field-side" style={{ borderLeft: `1px solid ${border}`, padding: "8px 10px", flex: "0 0 150px" }}>
-            <TownField
-              district={district}
-              value={town}
-              onChange={setTown}
-              placeholder={t.searchTown}
-              disabled={!district}
-              inputStyle={{ border: "none", outline: "none", background: "transparent", color: text, fontSize: 15, width: "100%", opacity: district ? 1 : 0.5 }}
-            />
-          </div>
-          <button type="submit" className="btn hero-search-btn" style={{ flex: "0 0 auto", background: gold, color: "#1F2937", borderRadius: 12, padding: "12px 26px", fontWeight: 600, fontSize: 15 }}>
-            {t.searchBtn}
-          </button>
-        </form>
-      </section>
-
-      {/* CATEGORIES */}
-      <section style={{ maxWidth: 1240, margin: "0 auto", padding: "24px 24px 56px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-          <h2 className="disp" style={{ fontSize: 22, fontWeight: 600, margin: 0 }}>{t.popularCategories}</h2>
-          <Link href="/search" style={{ color: teal, fontSize: 14, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>{t.browseAll} <ArrowRight size={14} /></Link>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(120px,1fr))", gap: 14 }}>
-          {CATEGORIES.map((c) => {
-            const Icon = c.icon;
-            return (
-              <Link key={c.key} href="/search" className="card-hover" style={{
-                background: surface, border: `1px solid ${border}`, borderRadius: 16, padding: "22px 12px",
-                textAlign: "center", cursor: "pointer", textDecoration: "none", color: text, display: "block"
-              }}>
-                <div style={{ width: 46, height: 46, borderRadius: 12, background: dark ? "#233038" : "#FFF7E0", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
-                  <Icon size={22} color={gold} />
-                </div>
-                <div style={{ fontSize: 13.5, fontWeight: 500 }}>{c[lang]}</div>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* FEATURED */}
-      <AdSection title={t.featured} viewAll={t.viewAll} ads={featured.length ? featured : homeAds.filter((a) => a.featured)} t={t} />
-
-      {/* LATEST */}
-      <AdSection title={t.latest} viewAll={t.viewAll} ads={latest.length ? latest : homeAds} t={t} />
-
-      {/* FOOTER */}
-      <footer style={{ background: dark ? "#0C1013" : "#1F2937", color: "#E5E7EB", padding: "48px 24px 24px" }}>
-        <div style={{ maxWidth: 1240, margin: "0 auto", display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 1fr", gap: 32 }} className="footer-grid">
-          <div>
-            <div className="disp" style={{ fontWeight: 700, fontSize: 20, marginBottom: 10 }}>Palanchi<span style={{ color: gold }}>.lk</span></div>
-            <p style={{ fontSize: 13.5, color: "#9CA3AF", lineHeight: 1.6, maxWidth: 260 }}>{t.footerTag}</p>
-          </div>
-          <FooterCol title={t.fQuick} items={[t.navHome, t.navCreate, t.navContact]} />
-          <FooterCol title={t.fCategories} items={CATEGORIES.slice(0, 5).map((c) => c[lang])} />
-          <FooterCol title={t.fSupport} items={[t.fPrivacy, t.fTerms, t.fContact]} />
-        </div>
-        <div style={{ maxWidth: 1240, margin: "36px auto 0", borderTop: "1px solid #374151", paddingTop: 18, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, fontSize: 12.5, color: "#9CA3AF" }}>
-          <span>{t.copyright}</span>
-          <span>{t.madeBy}</span>
-        </div>
-      </footer>
-
-      {/* CREATE AD MODAL */}
-      {menuModal && (
-        <div onClick={() => setMenuModal(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: 20 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: surface, borderRadius: 20, padding: 32, maxWidth: 420, width: "100%", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
-            <div style={{ width: 46, height: 46, borderRadius: 12, background: dark ? "#233038" : "#FFF7E0", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
-              <Plus size={22} color={gold} />
-            </div>
-            <h3 className="disp" style={{ fontSize: 19, fontWeight: 600, margin: "0 0 10px" }}>{t.navCreate}</h3>
-            <p style={{ fontSize: 14.5, color: textMuted, lineHeight: 1.6, margin: "0 0 24px" }}>
-              You can publish an advertisement without creating an account. If you login or register, you can edit and manage your advertisements later.
-            </p>
-            <Link href="/login" className="btn" style={{ display: "block", textAlign: "center", width: "100%", background: gold, color: "#1F2937", borderRadius: 12, padding: "13px", fontWeight: 600, fontSize: 15, marginBottom: 10, textDecoration: "none" }}>
-              {t.login} & manage ads
-            </Link>
-            <Link href="/create-ad" className="btn" style={{ display: "block", textAlign: "center", width: "100%", background: "transparent", border: `1px solid ${border}`, color: text, borderRadius: 12, padding: "13px", fontWeight: 500, fontSize: 15, textDecoration: "none" }}>
-              Continue without registration
-            </Link>
-          </div>
-        </div>
-      )}
-
-      <style>{`
-        @media (max-width: 700px) {
-          .hero-search-bar { flex-wrap: wrap !important; }
-          .hero-field { flex: 1 1 100% !important; width: 100% !important; }
-          .hero-field-side { border-left: none !important; border-top: 1px solid ${border} !important; }
-          .hero-search-btn { flex: 1 1 100% !important; width: 100% !important; }
-        }
-        @media (max-width: 860px) { .footer-grid { grid-template-columns: 1fr 1fr !important; } }
-      `}</style>
-    </div>
-  );
-}
-
-function FooterCol({ title, items }: { title: string; items: string[] }) {
-  return (
-    <div>
-      <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 12 }}>{title}</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-        {items.map((it, i) => <a key={i} href="#" style={{ fontSize: 13.5, color: "#9CA3AF", textDecoration: "none" }}>{it}</a>)}
-      </div>
-    </div>
-  );
-}
-
-function AdSection({ title, viewAll, ads, t }: { title: string; viewAll: string; ads: LiveAd[]; t: HomeDict }) {
-  const { dark, colors } = useTheme();
-  const { surface, border, textMuted, gold, teal } = colors;
-  return (
-    <section style={{ maxWidth: 1240, margin: "0 auto", padding: "0 24px 56px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-        <h2 className="disp" style={{ fontSize: 22, fontWeight: 600, margin: 0 }}>{title}</h2>
-        <Link href="/search" style={{ color: teal, fontSize: 14, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>{viewAll} <ArrowRight size={14} /></Link>
-      </div>
-      {ads.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "40px 20px", background: surface, border: `1px dashed ${border}`, borderRadius: 16, color: textMuted, fontSize: 14 }}>
-          {t.noAdsYet}
-        </div>
-      ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 16 }}>
-          {ads.map((ad) => (
-            <Link key={ad.id} href={`/ads/${ad.id}`} className="card-hover" style={{ background: surface, border: `1px solid ${border}`, borderRadius: 18, overflow: "hidden", cursor: "pointer", position: "relative", textDecoration: "none", color: "inherit", display: "block" }}>
-              <div style={{ position: "relative" }}>
-                <img src={ad.images[0]} alt={ad.title} style={{ width: "100%", height: 150, objectFit: "cover", display: "block" }} />
-                {ad.featured && (
-                  <span style={{ position: "absolute", top: 10, left: 10, background: gold, color: "#1F2937", fontSize: 11, fontWeight: 700, padding: "4px 9px", borderRadius: 8 }}>FEATURED</span>
-                )}
-                <span style={{ position: "absolute", top: 10, right: 10, background: dark ? "rgba(16,22,26,0.85)" : "rgba(255,255,255,0.9)", fontSize: 10.5, fontWeight: 600, padding: "4px 9px", borderRadius: 8, color: ad.condition === "new" ? "#0F3D3E" : "#6B7280" }}>{ad.condition === "new" ? t.conditionNew : t.condition}</span>
-              </div>
-
-              <div style={{ padding: "16px 16px 18px", position: "relative" }}>
-                <div style={{ position: "absolute", top: -1, left: 0, right: 0, height: 0, borderTop: `1px dashed ${border}` }} />
-                {[0, 1].map((side) => (
-                  <div key={side} style={{ position: "absolute", top: -6, width: 12, height: 12, borderRadius: "50%", background: "var(--page-behind, transparent)", border: `1px solid ${border}`, left: side === 0 ? -6 : "auto", right: side === 1 ? -6 : "auto" }} />
-                ))}
-                <div style={{ fontSize: 14.5, fontWeight: 600, marginBottom: 6, lineHeight: 1.35 }}>{ad.title}</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12.5, color: textMuted, marginBottom: 12 }}>
-                  <MapPin size={12} /> {ad.town}, {ad.district}
-                </div>
-                <div className="mono" style={{ fontSize: 17, fontWeight: 600, color: teal }}>
-                  Rs {fmt(ad.price)} <span style={{ fontSize: 12, fontWeight: 500, color: textMuted }}>{t[ad.period as Period]}</span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
-    </section>
+      <HomeClient />
+    </>
   );
 }

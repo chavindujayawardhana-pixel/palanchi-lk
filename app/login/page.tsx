@@ -364,7 +364,9 @@ function LoginPageInner() {
 
                 <label style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 12.5, color: textMuted, marginBottom: 22, cursor: "pointer" }}>
                   <input type="checkbox" checked={reg.agree} onChange={(e) => setReg({ ...reg, agree: e.target.checked })} style={{ marginTop: 2 }} />
-                  <span>{t.agreeTerms} <a href="#" style={{ color: teal, fontWeight: 600 }}>{t.termsLink}</a> {t.andText} <a href="#" style={{ color: teal, fontWeight: 600 }}>{t.privacyLink}</a></span>
+                  <span>
+                    {t.agreeTerms} <a href="/terms-of-service" target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: teal, fontWeight: 600 }}>{t.termsLink}</a> {t.andText} <a href="/privacy-policy" target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: teal, fontWeight: 600 }}>{t.privacyLink}</a>
+                  </span>
                 </label>
                 {errors.agree && <div style={{ marginTop: -14, marginBottom: 14 }}><FieldError text={t.mustAgree} /></div>}
                 {authError && <div style={{ marginBottom: 14 }}><FieldError text={authError} /></div>}
