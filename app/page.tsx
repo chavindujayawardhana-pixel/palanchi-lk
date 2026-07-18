@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Search,
   MapPin,
@@ -11,6 +12,7 @@ import {
 import { Navbar } from "@/components/Navbar";
 import { useTheme } from "@/components/ThemeProvider";
 import { AuthNav } from "@/components/AuthNav";
+import { useAuth } from "@/components/AuthProvider";
 import { CATEGORIES, DISTRICTS, type Period } from "@/lib/data";
 import { fetchApprovedAds, type LiveAd } from "@/lib/ads";
 import { fmt } from "@/lib/format";
@@ -71,6 +73,8 @@ type HomeDict = (typeof dict)[Lang];
 
 export default function HomePage() {
   const { lang, dark, colors } = useTheme();
+  const { user } = useAuth();
+  const router = useRouter();
   const [menuModal, setMenuModal] = useState(false);
   const [query, setQuery] = useState("");
   const [district, setDistrict] = useState("");
@@ -111,7 +115,7 @@ export default function HomePage() {
         darkIcon={17}
         links={[
           { label: t.navHome, href: "/" },
-          { label: t.navCreate, onClick: () => setMenuModal(true) },
+          { label: t.navCreate, onClick: () => (user ? router.push("/create-ad") : setMenuModal(true)) },
           { label: t.navContact, href: "/contact" },
         ]}
         right={<AuthNav />}
