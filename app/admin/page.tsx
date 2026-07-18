@@ -31,7 +31,7 @@ const dict = {
     listing: "Listing", user: "User", category: "Category", location: "Location", price: "Price", date: "Date",
     confirmDelete: "Delete this listing? This cannot be undone.", cancel: "Cancel", confirm: "Confirm",
     addCategory: "Add category", categoryName: "Category name", adCount: "Ads",
-    adminPanel: "ADMIN PANEL", nameCol: "Name", emailCol: "Email", townCol: "Town",
+    adminPanel: "ADMIN PANEL", nameCol: "Name", emailCol: "Email", townCol: "Town", districtCol: "District", phoneCol: "Phone",
     settingsPlaceholder: "Settings — prototype placeholder",
     adminLoginTitle: "Admin sign in", adminLoginSub: "Enter the admin password to manage Palanchi.lk.",
     passwordLabel: "Password", passwordPh: "Enter password", loginBtn: "Sign in", wrongPassword: "Incorrect password",
@@ -39,7 +39,7 @@ const dict = {
     description: "Description", contactDetails: "Contact details", contactName: "Contact name", phone: "Phone",
     whatsapp: "WhatsApp", email: "Email", close: "Close",
     manageMessages: "Messages", subjectCol: "Subject", unread: "Unread", read: "Read", markRead: "Mark as read",
-    messageBody: "Message", noMessages: "No messages yet.",
+    messageBody: "Message", noMessages: "No messages yet.", noUsers: "No registered users yet.",
   },
   si: {
     dashboard: "ඩෑෂ්බෝඩ්", ads: "දැන්වීම්", usersNav: "පරිශීලකයන්", categoriesNav: "කාණ්ඩ", messagesNav: "පණිවිඩ", settingsNav: "සැකසුම්", logout: "ඉවත් වන්න",
@@ -55,7 +55,7 @@ const dict = {
     listing: "දැන්වීම", user: "පරිශීලකයා", category: "කාණ්ඩය", location: "ස්ථානය", price: "මිල", date: "දිනය",
     confirmDelete: "මෙම දැන්වීම මකන්නද? මෙය අහෝසි කළ නොහැක.", cancel: "අවලංගු කරන්න", confirm: "තහවුරු කරන්න",
     addCategory: "කාණ්ඩයක් එකතු කරන්න", categoryName: "කාණ්ඩයේ නම", adCount: "දැන්වීම්",
-    adminPanel: "පරිපාලක පැනලය", nameCol: "නම", emailCol: "විද්‍යුත් තැපෑල", townCol: "නගරය",
+    adminPanel: "පරිපාලක පැනලය", nameCol: "නම", emailCol: "විද්‍යුත් තැපෑල", townCol: "නගරය", districtCol: "දිස්ත්‍රික්කය", phoneCol: "දුරකථනය",
     settingsPlaceholder: "සැකසුම් — මූලාකෘති ස්ථානගත කරන්නා",
     adminLoginTitle: "පරිපාලක පිවිසුම", adminLoginSub: "Palanchi.lk කළමනාකරණය කිරීමට පරිපාලක මුරපදය ඇතුළත් කරන්න.",
     passwordLabel: "මුරපදය", passwordPh: "මුරපදය ඇතුළත් කරන්න", loginBtn: "පිවිසෙන්න", wrongPassword: "වැරදි මුරපදයකි",
@@ -63,7 +63,7 @@ const dict = {
     description: "විස්තරය", contactDetails: "සම්බන්ධතා විස්තර", contactName: "සම්බන්ධතා නම", phone: "දුරකථනය",
     whatsapp: "WhatsApp", email: "විද්‍යුත් තැපෑල", close: "වසන්න",
     manageMessages: "පණිවිඩ", subjectCol: "විෂය", unread: "නොකියවූ", read: "කියවා ඇත", markRead: "කියවූ ලෙස සලකුණු කරන්න",
-    messageBody: "පණිවිඩය", noMessages: "තවම පණිවිඩ නැත.",
+    messageBody: "පණිවිඩය", noMessages: "තවම පණිවිඩ නැත.", noUsers: "තවම ලියාපදිංචි පරිශීලකයන් නැත.",
   },
   ta: {
     dashboard: "டாஷ்போர்டு", ads: "விளம்பரங்கள்", usersNav: "பயனர்கள்", categoriesNav: "வகைகள்", messagesNav: "செய்திகள்", settingsNav: "அமைப்புகள்", logout: "வெளியேறு",
@@ -79,7 +79,7 @@ const dict = {
     listing: "பட்டியல்", user: "பயனர்", category: "வகை", location: "இடம்", price: "விலை", date: "தேதி",
     confirmDelete: "இந்த பட்டியலை நீக்கவா? இதை மீட்டெடுக்க முடியாது.", cancel: "ரத்து செய்", confirm: "உறுதிப்படுத்து",
     addCategory: "வகையைச் சேர்", categoryName: "வகையின் பெயர்", adCount: "விளம்பரங்கள்",
-    adminPanel: "நிர்வாக பலகம்", nameCol: "பெயர்", emailCol: "மின்னஞ்சல்", townCol: "நகரம்",
+    adminPanel: "நிர்வாக பலகம்", nameCol: "பெயர்", emailCol: "மின்னஞ்சல்", townCol: "நகரம்", districtCol: "மாவட்டம்", phoneCol: "தொலைபேசி",
     settingsPlaceholder: "அமைப்புகள் — மாதிரி ஒதுக்கிடம்",
     adminLoginTitle: "நிர்வாக உள்நுழைவு", adminLoginSub: "Palanchi.lk ஐ நிர்வகிக்க நிர்வாக கடவுச்சொல்லை உள்ளிடவும்.",
     passwordLabel: "கடவுச்சொல்", passwordPh: "கடவுச்சொல்லை உள்ளிடவும்", loginBtn: "உள்நுழை", wrongPassword: "தவறான கடவுச்சொல்",
@@ -87,7 +87,7 @@ const dict = {
     description: "விளக்கம்", contactDetails: "தொடர்பு விவரங்கள்", contactName: "தொடர்பு பெயர்", phone: "தொலைபேசி",
     whatsapp: "WhatsApp", email: "மின்னஞ்சல்", close: "மூடு",
     manageMessages: "செய்திகள்", subjectCol: "பொருள்", unread: "படிக்காதது", read: "படிக்கப்பட்டது", markRead: "படித்ததாக குறி",
-    messageBody: "செய்தி", noMessages: "இதுவரை செய்திகள் இல்லை.",
+    messageBody: "செய்தி", noMessages: "இதுவரை செய்திகள் இல்லை.", noUsers: "இதுவரை பதிவு செய்யப்பட்ட பயனர்கள் இல்லை.",
   },
 };
 
@@ -194,13 +194,41 @@ function mapMessageRow(row: AdminMessageRow): AdminMessage {
   };
 }
 
-const USERS = [
-  { id: 1, name: "Nadeesha Perera", email: "nadeesha@mail.com", town: "Kaduwela", joined: "2026-07-14", ads: 3 },
-  { id: 2, name: "Suresh Kumara", email: "suresh@mail.com", town: "Kandy Town", joined: "2026-07-13", ads: 1 },
-  { id: 3, name: "Fathima Rizvi", email: "fathima@mail.com", town: "Negombo", joined: "2026-07-12", ads: 2 },
-  { id: 4, name: "Kasun De Silva", email: "kasun@mail.com", town: "Matara Town", joined: "2026-07-10", ads: 1 },
-  { id: 5, name: "Amara Senanayake", email: "amara@mail.com", town: "Ja-Ela", joined: "2026-07-08", ads: 1 },
-];
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  district: string;
+  town: string;
+  joined: string;
+  ads: number;
+}
+
+interface AdminUserRow {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string;
+  phone: string | null;
+  district: string | null;
+  town: string | null;
+  created_at: string;
+  advertisements: { count: number }[] | null;
+}
+
+function mapUserRow(row: AdminUserRow): AdminUser {
+  return {
+    id: row.id,
+    name: [row.first_name, row.last_name].filter(Boolean).join(" ") || row.email,
+    email: row.email,
+    phone: row.phone ?? "—",
+    district: row.district ?? "—",
+    town: row.town ?? "—",
+    joined: row.created_at.slice(0, 10),
+    ads: row.advertisements?.[0]?.count ?? 0,
+  };
+}
 
 const CATS = [
   { name: "Scaffolding", count: 24 }, { name: "Construction equipment", count: 41 }, { name: "Generators", count: 18 },
@@ -218,6 +246,7 @@ export default function AdminPage() {
   const [nav, setNav] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [ads, setAds] = useState<AdminAd[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [messages, setMessages] = useState<AdminMessage[]>([]);
   const [search, setSearch] = useState("");
   const [confirmId, setConfirmId] = useState<string | null>(null);
@@ -252,9 +281,18 @@ export default function AdminPage() {
     }
   }
 
+  async function loadUsers() {
+    const res = await fetch("/api/admin/users");
+    if (res.ok) {
+      const json = await res.json();
+      setUsers((json.users as AdminUserRow[]).map(mapUserRow));
+    }
+  }
+
   useEffect(() => {
     loadAds();
     loadMessages();
+    loadUsers();
   }, []);
 
   async function handleLogin(e: React.FormEvent) {
@@ -269,7 +307,7 @@ export default function AdminPage() {
     setLoggingIn(false);
     if (res.ok) {
       setPassword("");
-      await Promise.all([loadAds(), loadMessages()]);
+      await Promise.all([loadAds(), loadMessages(), loadUsers()]);
     } else {
       setLoginError(true);
     }
@@ -279,6 +317,7 @@ export default function AdminPage() {
     await fetch("/api/admin/logout", { method: "POST" });
     setAuthed(false);
     setAds([]);
+    setUsers([]);
     setMessages([]);
   }
 
@@ -293,7 +332,7 @@ export default function AdminPage() {
 
   const stats = useMemo(
     () => ({
-      users: USERS.length + 214,
+      users: users.length,
       pending: ads.filter((a) => a.status === "pending").length,
       approved: ads.filter((a) => a.status === "approved").length,
       rejected: ads.filter((a) => a.status === "rejected").length,
@@ -301,11 +340,15 @@ export default function AdminPage() {
       categories: CATS.length,
       unreadMessages: messages.filter((m) => m.status === "unread").length,
     }),
-    [ads, messages]
+    [ads, users, messages]
   );
 
   const filteredAds = ads.filter(
     (a) => !search || a.title.toLowerCase().includes(search.toLowerCase()) || a.user.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const filteredUsers = users.filter(
+    (u) => !search || u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
   );
 
   async function setStatus(id: string, status: AdStatus) {
@@ -481,7 +524,7 @@ export default function AdminPage() {
                     <div className="disp" style={{ fontSize: 15, fontWeight: 600 }}>{t.latestUsers}</div>
                     <a href="#" onClick={(e) => { e.preventDefault(); setNav("users"); }} style={{ fontSize: 12.5, color: teal, fontWeight: 600, textDecoration: "none" }}>{t.viewAll}</a>
                   </div>
-                  {USERS.slice(0, 5).map((u) => (
+                  {users.slice(0, 5).map((u) => (
                     <div key={u.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderTop: `1px solid ${border}` }}>
                       <div style={{ width: 30, height: 30, borderRadius: "50%", background: dark ? "#233038" : "#FFF7E0", color: "#854F0B", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600, flexShrink: 0 }}>
                         {u.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
@@ -582,30 +625,38 @@ export default function AdminPage() {
           {nav === "users" && (
             <>
               <h1 className="disp" style={{ fontSize: 24, fontWeight: 700, margin: "0 0 18px" }}>{t.manageUsers}</h1>
-              <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 16, overflow: "hidden" }}>
-                <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, minWidth: 560 }}>
-                    <thead>
-                      <tr style={{ borderBottom: `1px solid ${border}` }}>
-                        {[t.nameCol, t.emailCol, t.townCol, t.joined, t.adCount].map((h, i) => (
-                          <th key={i} style={{ textAlign: "left", padding: "12px 16px", fontSize: 11.5, fontWeight: 600, color: textMuted, letterSpacing: 0.3 }}>{h.toUpperCase()}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {USERS.map((u) => (
-                        <tr key={u.id} className="row-hover" style={{ borderBottom: `1px solid ${border}` }}>
-                          <td style={{ padding: "12px 16px", fontWeight: 500 }}>{u.name}</td>
-                          <td style={{ padding: "12px 16px", color: textMuted }}>{u.email}</td>
-                          <td style={{ padding: "12px 16px", color: textMuted }}>{u.town}</td>
-                          <td style={{ padding: "12px 16px", color: textMuted }}>{u.joined}</td>
-                          <td className="mono" style={{ padding: "12px 16px" }}>{u.ads}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              {users.length === 0 ? (
+                <div style={{ background: surface, border: `1px dashed ${border}`, borderRadius: 16, padding: 40, textAlign: "center", color: textMuted, fontSize: 14 }}>
+                  {t.noUsers}
                 </div>
-              </div>
+              ) : (
+                <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 16, overflow: "hidden" }}>
+                  <div style={{ overflowX: "auto" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5, minWidth: 820 }}>
+                      <thead>
+                        <tr style={{ borderBottom: `1px solid ${border}` }}>
+                          {[t.nameCol, t.emailCol, t.phoneCol, t.districtCol, t.townCol, t.joined, t.adCount].map((h, i) => (
+                            <th key={i} style={{ textAlign: "left", padding: "12px 16px", fontSize: 11.5, fontWeight: 600, color: textMuted, letterSpacing: 0.3 }}>{h.toUpperCase()}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredUsers.map((u) => (
+                          <tr key={u.id} className="row-hover" style={{ borderBottom: `1px solid ${border}` }}>
+                            <td style={{ padding: "12px 16px", fontWeight: 500 }}>{u.name}</td>
+                            <td style={{ padding: "12px 16px", color: textMuted }}>{u.email}</td>
+                            <td style={{ padding: "12px 16px", color: textMuted }}>{u.phone}</td>
+                            <td style={{ padding: "12px 16px", color: textMuted }}>{u.district}</td>
+                            <td style={{ padding: "12px 16px", color: textMuted }}>{u.town}</td>
+                            <td style={{ padding: "12px 16px", color: textMuted }}>{u.joined}</td>
+                            <td className="mono" style={{ padding: "12px 16px" }}>{u.ads}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </>
           )}
 
