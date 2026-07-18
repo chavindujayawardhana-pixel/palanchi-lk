@@ -141,14 +141,15 @@ export default function HomePage() {
 
         <form
           onSubmit={(e) => { e.preventDefault(); goToSearch(); }}
-          style={{ display: "flex", flexWrap: "wrap", gap: 8, background: surface, border: `1px solid ${border}`, borderRadius: 16, padding: 10, maxWidth: 760, margin: "0 auto", boxShadow: "0 8px 30px rgba(0,0,0,0.06)" }}
+          className="hero-search-bar"
+          style={{ display: "flex", flexWrap: "nowrap", gap: 8, background: surface, border: `1px solid ${border}`, borderRadius: 16, padding: 10, maxWidth: 860, margin: "0 auto", boxShadow: "0 8px 30px rgba(0,0,0,0.06)" }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flex: "1 1 260px", padding: "8px 10px" }}>
+          <div className="hero-field hero-field-query" style={{ display: "flex", alignItems: "center", gap: 8, flex: "1 1 200px", minWidth: 0, padding: "8px 10px" }}>
             <Search size={18} color={textMuted} />
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t.searchPlaceholder}
-              style={{ border: "none", outline: "none", background: "transparent", color: text, fontSize: 15, width: "100%" }} />
+              style={{ border: "none", outline: "none", background: "transparent", color: text, fontSize: 15, width: "100%", minWidth: 0 }} />
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, borderLeft: `1px solid ${border}`, padding: "8px 10px", flex: "0 1 180px" }}>
+          <div className="hero-field hero-field-side" style={{ display: "flex", alignItems: "center", gap: 8, borderLeft: `1px solid ${border}`, padding: "8px 10px", flex: "0 0 150px" }}>
             <MapPin size={18} color={textMuted} />
             <select value={district} onChange={(e) => { setDistrict(e.target.value); setTown(""); }}
               style={{ border: "none", outline: "none", background: "transparent", color: text, fontSize: 15, width: "100%" }}>
@@ -156,7 +157,7 @@ export default function HomePage() {
               {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
             </select>
           </div>
-          <div style={{ borderLeft: `1px solid ${border}`, padding: "8px 10px", flex: "0 1 180px" }}>
+          <div className="hero-field hero-field-side" style={{ borderLeft: `1px solid ${border}`, padding: "8px 10px", flex: "0 0 150px" }}>
             <TownField
               district={district}
               value={town}
@@ -166,7 +167,7 @@ export default function HomePage() {
               inputStyle={{ border: "none", outline: "none", background: "transparent", color: text, fontSize: 15, width: "100%", opacity: district ? 1 : 0.5 }}
             />
           </div>
-          <button type="submit" className="btn" style={{ background: gold, color: "#1F2937", borderRadius: 12, padding: "12px 26px", fontWeight: 600, fontSize: 15 }}>
+          <button type="submit" className="btn hero-search-btn" style={{ flex: "0 0 auto", background: gold, color: "#1F2937", borderRadius: 12, padding: "12px 26px", fontWeight: 600, fontSize: 15 }}>
             {t.searchBtn}
           </button>
         </form>
@@ -240,7 +241,15 @@ export default function HomePage() {
         </div>
       )}
 
-      <style>{`@media (max-width: 860px) { .footer-grid { grid-template-columns: 1fr 1fr !important; } }`}</style>
+      <style>{`
+        @media (max-width: 700px) {
+          .hero-search-bar { flex-wrap: wrap !important; }
+          .hero-field { flex: 1 1 100% !important; width: 100% !important; }
+          .hero-field-side { border-left: none !important; border-top: 1px solid ${border} !important; }
+          .hero-search-btn { flex: 1 1 100% !important; width: 100% !important; }
+        }
+        @media (max-width: 860px) { .footer-grid { grid-template-columns: 1fr 1fr !important; } }
+      `}</style>
     </div>
   );
 }
