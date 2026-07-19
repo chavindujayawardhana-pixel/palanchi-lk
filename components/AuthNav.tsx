@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useTheme } from "./ThemeProvider";
 import { useAuth } from "./AuthProvider";
 
-const dict = {
-  en: { login: "Log in", register: "Register", myAds: "My ads", logout: "Log out" },
-  si: { login: "පිවිසෙන්න", register: "ලියාපදිංචි වන්න", myAds: "මගේ දැන්වීම්", logout: "ඉවත් වන්න" },
-  ta: { login: "உள்நுழை", register: "பதிவு செய்க", myAds: "என் விளம்பரங்கள்", logout: "வெளியேறு" },
+export const AUTH_NAV_DICT = {
+  en: { login: "Log in", register: "Register", myAds: "My ads", myProfile: "My profile", logout: "Log out" },
+  si: { login: "පිවිසෙන්න", register: "ලියාපදිංචි වන්න", myAds: "මගේ දැන්වීම්", myProfile: "මගේ පැතිකඩ", logout: "ඉවත් වන්න" },
+  ta: { login: "உள்நுழை", register: "பதிவு செய்க", myAds: "என் விளம்பரங்கள்", myProfile: "என் சுயவிவரம்", logout: "வெளியேறு" },
 };
+const dict = AUTH_NAV_DICT;
 
 interface AuthNavProps {
   /** Renders full-width, stacked controls for the mobile hamburger menu instead of the desktop-only inline row. */
@@ -62,9 +63,8 @@ export function AuthNav({ mobile = false, onNavigate }: AuthNavProps) {
   if (mobile) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <span style={{ fontSize: 15, color: text, fontWeight: 600 }}>{displayName}</span>
-        <Link href="/my-ads" onClick={onNavigate} style={{ color: text, fontSize: 15, fontWeight: 500, textDecoration: "none" }}>
-          {t.myAds}
+        <Link href="/profile" onClick={onNavigate} style={{ color: text, fontSize: 15, fontWeight: 500, textDecoration: "none" }}>
+          {t.myProfile}
         </Link>
         <button
           type="button"

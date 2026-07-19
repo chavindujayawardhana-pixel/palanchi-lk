@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
+import { useAuth } from "./AuthProvider";
 import { Logo } from "./Logo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { DarkModeToggle } from "./DarkModeToggle";
-import { AuthNav } from "./AuthNav";
+import { AuthNav, AUTH_NAV_DICT } from "./AuthNav";
 
 export interface NavLink {
   label: string;
@@ -60,20 +61,38 @@ export function Navbar({
   darkIcon = 16,
 }: NavbarProps) {
   const { lang, dark, colors } = useTheme();
+  const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
 
+  // Lock body scroll while the drawer is open so the dimmed page behind it can't scroll.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [menuOpen]);
+
   // The mobile menu always offers Home/Create ad/Contact, even on pages that don't
   // render a desktop `links` row — falls back to these plain-href defaults so the
-  // desktop nav (gated on `links` below) is never affected.
+  // desktop nav (gated on `links` below) is never affected. My ads is always
+  // appended on top of either source whenever the user is signed in.
   const t = CORE_NAV_DICT[lang];
-  const mobileLinks: NavLink[] = links ?? [
+  const authT = AUTH_NAV_DICT[lang];
+  const baseLinks: NavLink[] = links ?? [
     { label: t.home, href: "/" },
     { label: t.createAd, href: "/create-ad" },
     { label: t.contact, href: "/contact" },
   ];
+  const mobileLinks: NavLink[] = [
+    ...baseLinks,
+    ...(user ? [{ label: authT.myAds, href: "/my-ads" }] : []),
+  ];
 
   return (
+    <>
     <header
       style={{
         ...(sticky ? { position: "sticky", top: 0, zIndex: 50 } : {}),
@@ -151,49 +170,107 @@ export function Navbar({
           </button>
         </div>
       </div>
+    </header>
 
-      {menuOpen && (
-        <div
-          className="mobile-nav"
+    {/* Dimming overlay behind the drawer. Rendered as a header sibling (not a child) because
+        the header's backdrop-filter would otherwise become the containing block for these
+        fixed-position elements, trapping them inside the header's own box. Always mounted
+        (rather than conditionally rendered) so the opacity transition can play both ways. */}
+    <div
+      className="mobile-nav"
+      onClick={closeMenu}
+      aria-hidden={!menuOpen}
+      style={{
+        display: "none",
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.55)",
+        backdropFilter: "blur(2px)",
+        zIndex: 998,
+        opacity: menuOpen ? 1 : 0,
+        pointerEvents: menuOpen ? "auto" : "none",
+        transition: "opacity 0.3s ease",
+      }}
+    />
+
+    <div
+      className="mobile-nav"
+      role="dialog"
+      aria-modal="true"
+      aria-hidden={!menuOpen}
+      style={{
+        display: "none",
+        flexDirection: "column",
+        position: "fixed",
+        top: 0,
+        right: 0,
+        bottom: 0,
+        width: "76%",
+        maxWidth: 320,
+        background: dark ? "#10161A" : "#FFFFFF",
+        borderLeft: `1px solid ${colors.border}`,
+        boxShadow: "-12px 0 32px rgba(0,0,0,0.25)",
+        zIndex: 999,
+        padding: "18px 22px 28px",
+        overflowY: "auto",
+        transform: menuOpen ? "translateX(0)" : "translateX(100%)",
+        transition: "transform 0.3s ease",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 18 }}>
+        <button
+          type="button"
+          onClick={closeMenu}
+          aria-label="Close menu"
+          className="btn"
           style={{
-            display: "none",
-            flexDirection: "column",
-            gap: 14,
-            padding: "8px 24px 20px",
-            borderTop: `1px solid ${colors.border}`,
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            background: "transparent",
+            border: `1px solid ${colors.border}`,
+            color: colors.text,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          {mobileLinks.map((l, i) =>
-            l.onClick ? (
-              <a
-                key={i}
-                href={l.href ?? "#"}
-                onClick={(e) => {
-                  e.preventDefault();
-                  l.onClick?.();
-                  closeMenu();
-                }}
-                style={{ color: colors.text, textDecoration: "none", fontSize: 15 }}
-              >
-                {l.label}
-              </a>
-            ) : (
-              <Link
-                key={i}
-                href={l.href ?? "#"}
-                onClick={closeMenu}
-                style={{ color: colors.text, textDecoration: "none", fontSize: 15 }}
-              >
-                {l.label}
-              </Link>
-            )
-          )}
+          <X size={20} />
+        </button>
+      </div>
 
-          <div style={{ height: 1, background: colors.border }} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {mobileLinks.map((l, i) =>
+          l.onClick ? (
+            <a
+              key={i}
+              href={l.href ?? "#"}
+              onClick={(e) => {
+                e.preventDefault();
+                l.onClick?.();
+                closeMenu();
+              }}
+              style={{ color: colors.text, textDecoration: "none", fontSize: 15.5, fontWeight: 500 }}
+            >
+              {l.label}
+            </a>
+          ) : (
+            <Link
+              key={i}
+              href={l.href ?? "#"}
+              onClick={closeMenu}
+              style={{ color: colors.text, textDecoration: "none", fontSize: 15.5, fontWeight: 500 }}
+            >
+              {l.label}
+            </Link>
+          )
+        )}
 
-          <AuthNav mobile onNavigate={closeMenu} />
-        </div>
-      )}
-    </header>
+        <div style={{ height: 1, background: colors.border }} />
+
+        <AuthNav mobile onNavigate={closeMenu} />
+      </div>
+    </div>
+    </>
   );
 }
