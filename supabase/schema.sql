@@ -40,7 +40,10 @@ create table if not exists public.advertisements (
   district text not null,
   town text not null,
   price numeric(12, 2) not null,
-  rental_period text not null check (rental_period in ('perHour', 'perDay', 'perWeek', 'perMonth')),
+  rental_period text not null check (rental_period in ('perHour', 'perDay', 'perWeek', 'perMonth', 'perKm')),
+  -- Only meaningful for the Vehicles category: 'forRent' (no driver) or
+  -- 'forHire' (with driver, priced per km). Null for every other category.
+  subcategory text check (subcategory is null or subcategory in ('forRent', 'forHire')),
   quantity integer not null default 1,
   condition text not null check (condition in ('new', 'used')),
   contact_name text not null,

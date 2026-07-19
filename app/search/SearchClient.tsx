@@ -9,7 +9,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { AuthNav } from "@/components/AuthNav";
 import { DistrictField } from "@/components/DistrictField";
 import { TownField } from "@/components/TownField";
-import { type Period } from "@/lib/data";
+import { type Period, type VehicleSubcategory, VEHICLES_CATEGORY_NAME } from "@/lib/data";
 import { fetchApprovedAds, type LiveAd } from "@/lib/ads";
 import { useCategories } from "@/lib/categories";
 import { fmt } from "@/lib/format";
@@ -19,10 +19,11 @@ const dict = {
   en: {
     navCreate: "Create ad",
     resultsFor: "results", filters: "Filters", category: "Category", district: "District", town: "Town",
+    vehicleType: "Vehicle type", forRent: "For Rent", forHire: "For Hire",
     minPrice: "Min price", maxPrice: "Max price", sortBy: "Sort by",
     newest: "Newest", oldest: "Oldest", featuredSort: "Featured",
     apply: "Apply filters", clear: "Clear all", allCategories: "All categories", allDistricts: "All districts", allTowns: "All towns",
-    perDay: "/ day", perHour: "/ hour", perWeek: "/ week", perMonth: "/ month",
+    perDay: "/ day", perHour: "/ hour", perWeek: "/ week", perMonth: "/ month", perKm: "/ km",
     condition: "Used", conditionNew: "New", noResults: "No listings match your filters",
     noResultsSub: "Try widening your search or clearing a filter.",
     searchPlaceholder: "Search title or description...",
@@ -30,10 +31,11 @@ const dict = {
   si: {
     navCreate: "දැන්වීමක් පළ කරන්න",
     resultsFor: "ප්‍රතිඵල", filters: "පෙරහන්", category: "කාණ්ඩය", district: "දිස්ත්‍රික්කය", town: "නගරය",
+    vehicleType: "වාහන වර්ගය", forRent: "කුලියට", forHire: "සේවා කුලියට",
     minPrice: "අවම මිල", maxPrice: "උපරිම මිල", sortBy: "අනුපිළිවෙල",
     newest: "අලුත්ම", oldest: "පැරණිතම", featuredSort: "විශේෂාංගිත",
     apply: "පෙරහන් යොදන්න", clear: "සියල්ල ඉවත් කරන්න", allCategories: "සියලු කාණ්ඩ", allDistricts: "සියලු දිස්ත්‍රික්ක", allTowns: "සියලු නගර",
-    perDay: "/ දිනකට", perHour: "/ පැයකට", perWeek: "/ සතියකට", perMonth: "/ මාසයකට",
+    perDay: "/ දිනකට", perHour: "/ පැයකට", perWeek: "/ සතියකට", perMonth: "/ මාසයකට", perKm: "/ කි.මී.",
     condition: "පරණ", conditionNew: "අලුත්", noResults: "ඔබේ පෙරහන්වලට ගැලපෙන දැන්වීම් නැත",
     noResultsSub: "ඔබේ සෙවීම පුළුල් කරන්න හෝ පෙරහනක් ඉවත් කරන්න.",
     searchPlaceholder: "මාතෘකාව හෝ විස්තරය සොයන්න...",
@@ -41,10 +43,11 @@ const dict = {
   ta: {
     navCreate: "விளம்பரம் இடு",
     resultsFor: "முடிவுகள்", filters: "வடிகட்டிகள்", category: "வகை", district: "மாவட்டம்", town: "நகரம்",
+    vehicleType: "வாகன வகை", forRent: "வாடகைக்கு", forHire: "சேவை வாடகை",
     minPrice: "குறைந்த விலை", maxPrice: "அதிக விலை", sortBy: "வரிசைப்படுத்து",
     newest: "புதியது", oldest: "பழையது", featuredSort: "சிறப்பு",
     apply: "வடிகட்டிகளை பயன்படுத்து", clear: "அனைத்தையும் அழி", allCategories: "அனைத்து வகைகள்", allDistricts: "அனைத்து மாவட்டங்கள்", allTowns: "அனைத்து நகரங்கள்",
-    perDay: "/ நாள்", perHour: "/ மணி", perWeek: "/ வாரம்", perMonth: "/ மாதம்",
+    perDay: "/ நாள்", perHour: "/ மணி", perWeek: "/ வாரம்", perMonth: "/ மாதம்", perKm: "/ கி.மீ.",
     condition: "பழையது", conditionNew: "புதியது", noResults: "உங்கள் வடிகட்டிகளுக்கு பொருந்தும் விளம்பரங்கள் இல்லை",
     noResultsSub: "உங்கள் தேடலை விரிவுபடுத்தவும் அல்லது வடிகட்டியை அழிக்கவும்.",
     searchPlaceholder: "தலைப்பு அல்லது விளக்கத்தை தேடுங்கள்...",
@@ -67,7 +70,8 @@ function SearchPageInner() {
   const [filtersOpen, setFiltersOpen] = useState(true);
 
   const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(() => searchParams.get("category") ?? "");
+  const [subcats, setSubcats] = useState<VehicleSubcategory[]>([]);
   const [district, setDistrict] = useState(() => searchParams.get("district") ?? "");
   const [town, setTown] = useState(() => searchParams.get("town") ?? "");
   const [minPrice, setMinPrice] = useState("");
@@ -75,6 +79,12 @@ function SearchPageInner() {
   const [sort, setSort] = useState("newest");
   const [ads, setAds] = useState<LiveAd[]>([]);
   const categories = useCategories();
+
+  const isVehicleCategory = categories.find((c) => String(c.id) === category)?.name_en === VEHICLES_CATEGORY_NAME;
+
+  function toggleSubcat(sc: VehicleSubcategory) {
+    setSubcats((prev) => (prev.includes(sc) ? prev.filter((x) => x !== sc) : [...prev, sc]));
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -92,6 +102,7 @@ function SearchPageInner() {
       (a) =>
         (!query || a.title.toLowerCase().includes(query.toLowerCase())) &&
         (!category || String(a.categoryId) === category) &&
+        (!isVehicleCategory || subcats.length === 0 || (a.subcategory !== null && subcats.includes(a.subcategory))) &&
         (!district || a.district === district) &&
         (!town || a.town === town) &&
         (!minPrice || a.price >= Number(minPrice)) &&
@@ -100,11 +111,12 @@ function SearchPageInner() {
     if (sort === "featured") r = [...r].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
     if (sort === "oldest") r = [...r].reverse();
     return r;
-  }, [ads, query, category, district, town, minPrice, maxPrice, sort]);
+  }, [ads, query, category, isVehicleCategory, subcats, district, town, minPrice, maxPrice, sort]);
 
   const clearAll = () => {
     setQuery("");
     setCategory("");
+    setSubcats([]);
     setDistrict("");
     setTown("");
     setMinPrice("");
@@ -163,10 +175,42 @@ function SearchPageInner() {
             </div>
 
             <label style={labelStyle}>{t.category}</label>
-            <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ ...fieldStyle, marginBottom: 16 }}>
+            <select
+              value={category}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                const stillVehicle = categories.find((c) => String(c.id) === e.target.value)?.name_en === VEHICLES_CATEGORY_NAME;
+                if (!stillVehicle) setSubcats([]);
+              }}
+              style={{ ...fieldStyle, marginBottom: isVehicleCategory ? 10 : 16 }}
+            >
               <option value="">{t.allCategories}</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c[`name_${lang}`]}</option>)}
             </select>
+
+            {isVehicleCategory && (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+                {(["forRent", "forHire"] as VehicleSubcategory[]).map((sc) => {
+                  const active = subcats.includes(sc);
+                  return (
+                    <button
+                      type="button"
+                      key={sc}
+                      onClick={() => toggleSubcat(sc)}
+                      className="btn"
+                      style={{
+                        padding: "7px 13px", borderRadius: 999, fontSize: 12.5, fontWeight: 500,
+                        border: `1px solid ${active ? gold : border}`,
+                        background: active ? (dark ? "#2A2410" : "#FFF7E0") : "transparent",
+                        color: text,
+                      }}
+                    >
+                      {sc === "forRent" ? t.forRent : t.forHire}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
             <label style={labelStyle}>{t.district}</label>
             <div style={{ marginBottom: 16 }}>
@@ -203,6 +247,15 @@ function SearchPageInner() {
                       </span>
                     </div>
                     <div style={{ padding: "16px" }}>
+                      {ad.subcategory && (
+                        <span style={{
+                          display: "inline-block", fontSize: 10.5, fontWeight: 600, padding: "3px 9px", borderRadius: 8, marginBottom: 8,
+                          background: ad.subcategory === "forRent" ? (dark ? "#123028" : "#E1F5EE") : (dark ? "#2A2410" : "#FFF7E0"),
+                          color: ad.subcategory === "forRent" ? "#0F6E56" : "#8A6100",
+                        }}>
+                          {ad.subcategory === "forRent" ? t.forRent : t.forHire}
+                        </span>
+                      )}
                       <div style={{ fontSize: 14.5, fontWeight: 600, marginBottom: 6, lineHeight: 1.35 }}>{ad.title}</div>
                       <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12.5, color: textMuted, marginBottom: 12 }}>
                         <MapPin size={12} /> {ad.town}, {ad.district}

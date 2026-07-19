@@ -19,7 +19,7 @@ import type { Lang } from "@/lib/i18n";
 const dict = {
   en: {
     navCreate: "Create ad",
-    backToResults: "Back to results", perDay: "/ day", perHour: "/ hour", perWeek: "/ week", perMonth: "/ month",
+    backToResults: "Back to results", perDay: "/ day", perHour: "/ hour", perWeek: "/ week", perMonth: "/ month", perKm: "/ km",
     condition: "Condition", conditionNew: "New", conditionUsed: "Used",
     quantity: "Available quantity", category: "Category", posted: "Posted",
     description: "Description", location: "Location", viewOnMap: "View on map",
@@ -34,7 +34,7 @@ const dict = {
   },
   si: {
     navCreate: "දැන්වීමක් පළ කරන්න",
-    backToResults: "ප්‍රතිඵල වෙත ආපහු", perDay: "/ දිනකට", perHour: "/ පැයකට", perWeek: "/ සතියකට", perMonth: "/ මාසයකට",
+    backToResults: "ප්‍රතිඵල වෙත ආපහු", perDay: "/ දිනකට", perHour: "/ පැයකට", perWeek: "/ සතියකට", perMonth: "/ මාසයකට", perKm: "/ කි.මී.",
     condition: "තත්ත්වය", conditionNew: "අලුත්", conditionUsed: "පරණ",
     quantity: "ලබාගත හැකි ප්‍රමාණය", category: "කාණ්ඩය", posted: "පළ කළේ",
     description: "විස්තරය", location: "ස්ථානය", viewOnMap: "සිතියමේ බලන්න",
@@ -49,7 +49,7 @@ const dict = {
   },
   ta: {
     navCreate: "விளம்பரம் இடு",
-    backToResults: "முடிவுகளுக்கு திரும்பு", perDay: "/ நாள்", perHour: "/ மணி", perWeek: "/ வாரம்", perMonth: "/ மாதம்",
+    backToResults: "முடிவுகளுக்கு திரும்பு", perDay: "/ நாள்", perHour: "/ மணி", perWeek: "/ வாரம்", perMonth: "/ மாதம்", perKm: "/ கி.மீ.",
     condition: "நிலை", conditionNew: "புதியது", conditionUsed: "பழையது",
     quantity: "கிடைக்கும் அளவு", category: "வகை", posted: "வெளியிடப்பட்டது",
     description: "விளக்கம்", location: "இடம்", viewOnMap: "மேப்பில் பார்க்க",

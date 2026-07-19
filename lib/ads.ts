@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import type { Period, Condition } from "./data";
+import type { Period, Condition, VehicleSubcategory } from "./data";
 
 const PLACEHOLDER_IMAGE = "https://picsum.photos/seed/placeholder/900/650";
 
@@ -17,6 +17,7 @@ export interface LiveAd {
   description: string;
   categoryId: number | null;
   categoryName: CategoryName | null;
+  subcategory: VehicleSubcategory | null;
   district: string;
   town: string;
   price: number;
@@ -36,7 +37,7 @@ export interface LiveAd {
 }
 
 const AD_SELECT = `
-  id, title, description, category_id, district, town, price, rental_period, quantity,
+  id, title, description, category_id, subcategory, district, town, price, rental_period, quantity,
   condition, contact_name, phone, whatsapp, email, address, map_link, status, featured, created_at,
   categories ( name_en, name_si, name_ta ),
   advertisement_images ( image_url, is_cover, sort_order )
@@ -47,6 +48,7 @@ interface AdRow {
   title: string;
   description: string | null;
   category_id: number | null;
+  subcategory: VehicleSubcategory | null;
   district: string;
   town: string;
   price: number;
@@ -80,6 +82,7 @@ function mapRow(row: AdRow): LiveAd {
     categoryName: row.categories
       ? { en: row.categories.name_en, si: row.categories.name_si, ta: row.categories.name_ta }
       : null,
+    subcategory: row.subcategory,
     district: row.district,
     town: row.town,
     price: Number(row.price),

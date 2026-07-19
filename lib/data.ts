@@ -9,13 +9,43 @@ import {
   Cable,
   PartyPopper,
   Layers3,
+  Forklift,
+  Wheat,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { Lang } from "./i18n";
 
-/** Rental period keys — resolved to a localized label via each page dictionary. */
-export type Period = "perHour" | "perDay" | "perWeek" | "perMonth";
+/** Rental period keys — resolved to a localized label via each page dictionary.
+ * "perKm" only applies to Vehicles > For Hire (vehicle + driver) listings. */
+export type Period = "perHour" | "perDay" | "perWeek" | "perMonth" | "perKm";
 export type Condition = "new" | "used";
+
+/** Vehicle-only sub-category: renting the vehicle itself vs. hiring it with a driver. */
+export type VehicleSubcategory = "forRent" | "forHire";
+
+/** English name of the category (as stored in the `categories` table) that
+ * triggers the For Rent / For Hire sub-category flow in the Post Ad form. */
+export const VEHICLES_CATEGORY_NAME = "Vehicles";
+
+/** Icon per category, keyed by the `categories.name_en` value from Supabase
+ * (the 14-category seed list — see supabase/schema.sql). Used by the Post Ad
+ * form's category cards. */
+export const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  "Scaffolding": Fence,
+  "Construction equipment": HardHat,
+  "Generators": Zap,
+  "Power tools": Wrench,
+  "Excavators": Tractor,
+  "Backhoes": Tractor,
+  "Forklifts": Forklift,
+  "Rollers": Layers3,
+  "Containers": Container,
+  "Vehicles": Truck,
+  "Agricultural equipment": Wheat,
+  "Electrical equipment": Cable,
+  "Event equipment": PartyPopper,
+  "Others": Layers3,
+};
 
 /** Icon-backed categories, used on the homepage and search page. */
 export interface Category {

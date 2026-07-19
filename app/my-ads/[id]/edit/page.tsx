@@ -12,6 +12,8 @@ import { TownField } from "@/components/TownField";
 import { useCategories } from "@/lib/categories";
 import { danger } from "@/lib/theme";
 import { supabase } from "@/lib/supabase";
+import { CATEGORY_ICONS, VEHICLES_CATEGORY_NAME, type VehicleSubcategory } from "@/lib/data";
+import { Layers3 } from "lucide-react";
 
 const dict = {
   en: {
@@ -19,9 +21,12 @@ const dict = {
     sectionBasic: "Basic details", title: "Title", titlePh: "e.g. 20 kVA Diesel Generator",
     description: "Description", descPh: "Describe condition, specifications, and anything a renter should know...",
     category: "Category", selectCategory: "Select category",
+    subcategoryLabel: "Vehicle type", forRent: "For Rent", forRentDesc: "Rent the vehicle without a driver",
+    forHire: "For Hire", forHireDesc: "Vehicle with driver service (e.g. a lorry with driver)",
     sectionLocation: "Location", district: "District", town: "Town", selectDistrict: "Select district", selectTown: "Select town",
     address: "Address", addressPh: "Street, area or landmark", mapLocation: "Google map location", mapPh: "Paste map link (optional)",
     sectionPricing: "Rental pricing", price: "Rental price (Rs)", pricePh: "0.00", period: "Rental period",
+    pricePerKm: "Price per kilometer (Rs)", pricePerKmPh: "Enter price per km",
     perHour: "Per hour", perDay: "Per day", perWeek: "Per week", perMonth: "Per month",
     quantity: "Available quantity", condition: "Condition", condNew: "New", condUsed: "Used",
     sectionContact: "Contact details", contactName: "Contact name", contactNamePh: "Full name",
@@ -37,9 +42,12 @@ const dict = {
     sectionBasic: "මූලික විස්තර", title: "මාතෘකාව", titlePh: "උදා: 20 kVA ඩීසල් ජනරේටරය",
     description: "විස්තරය", descPh: "තත්ත්වය, විශේෂාංග සහ කුලියට ගන්නා අයෙකු දැනගත යුතු ඕනෑම දෙයක් විස්තර කරන්න...",
     category: "කාණ්ඩය", selectCategory: "කාණ්ඩය තෝරන්න",
+    subcategoryLabel: "වාහන වර්ගය", forRent: "කුලියට", forRentDesc: "රියදුරෙකු නොමැතිව වාහනය කුලියට දෙන්න",
+    forHire: "සේවා කුලියට", forHireDesc: "රියදුරු සේවාව සමඟ වාහනය (උදා: රියදුරු සමඟ ලොරි රථයක්)",
     sectionLocation: "ස්ථානය", district: "දිස්ත්‍රික්කය", town: "නගරය", selectDistrict: "දිස්ත්‍රික්කය තෝරන්න", selectTown: "නගරය තෝරන්න",
     address: "ලිපිනය", addressPh: "වීදිය, ප්‍රදේශය හෝ සන්ධිස්ථානය", mapLocation: "ගූගල් සිතියම් ස්ථානය", mapPh: "සිතියම් සබැඳිය අලවන්න (විකල්ප)",
     sectionPricing: "කුලී මිල", price: "කුලී මිල (රු)", pricePh: "0.00", period: "කුලී කාලය",
+    pricePerKm: "කිලෝමීටරයට මිල (රු)", pricePerKmPh: "කිලෝමීටරයට මිල ඇතුළත් කරන්න",
     perHour: "පැයකට", perDay: "දිනකට", perWeek: "සතියකට", perMonth: "මාසයකට",
     quantity: "ලබාගත හැකි ප්‍රමාණය", condition: "තත්ත්වය", condNew: "අලුත්", condUsed: "පරණ",
     sectionContact: "සම්බන්ධතා විස්තර", contactName: "සම්බන්ධතා නම", contactNamePh: "සම්පූර්ණ නම",
@@ -55,9 +63,12 @@ const dict = {
     sectionBasic: "அடிப்படை விவரங்கள்", title: "தலைப்பு", titlePh: "உதா: 20 kVA டீசல் ஜெனரேட்டர்",
     description: "விளக்கம்", descPh: "நிலை, விவரக்குறிப்புகள் மற்றும் வாடகைதாரர் அறிய வேண்டிய அனைத்தையும் விவரிக்கவும்...",
     category: "வகை", selectCategory: "வகையை தேர்ந்தெடுக்கவும்",
+    subcategoryLabel: "வாகன வகை", forRent: "வாடகைக்கு", forRentDesc: "ஓட்டுநர் இல்லாமல் வாகனத்தை வாடகைக்கு விடவும்",
+    forHire: "சேவை வாடகை", forHireDesc: "ஓட்டுநர் சேவையுடன் வாகனம் (உதா: ஓட்டுநருடன் லாரி)",
     sectionLocation: "இடம்", district: "மாவட்டம்", town: "நகரம்", selectDistrict: "மாவட்டத்தை தேர்ந்தெடுக்கவும்", selectTown: "நகரத்தை தேர்ந்தெடுக்கவும்",
     address: "முகவரி", addressPh: "தெரு, பகுதி அல்லது அடையாளம்", mapLocation: "கூகிள் மேப் இடம்", mapPh: "மேப் இணைப்பை ஒட்டவும் (விருப்பம்)",
     sectionPricing: "வாடகை விலை", price: "வாடகை விலை (Rs)", pricePh: "0.00", period: "வாடகை காலம்",
+    pricePerKm: "கிலோமீட்டருக்கான விலை (Rs)", pricePerKmPh: "கிலோமீட்டருக்கான விலையை உள்ளிடவும்",
     perHour: "மணிக்கு", perDay: "நாளுக்கு", perWeek: "வாரத்திற்கு", perMonth: "மாதத்திற்கு",
     quantity: "கிடைக்கும் அளவு", condition: "நிலை", condNew: "புதியது", condUsed: "பழையது",
     sectionContact: "தொடர்பு விவரங்கள்", contactName: "தொடர்பு பெயர்", contactNamePh: "முழு பெயர்",
@@ -74,6 +85,7 @@ interface FormState {
   title: string;
   description: string;
   category: string;
+  subcategory: string;
   district: string;
   town: string;
   address: string;
@@ -89,7 +101,7 @@ interface FormState {
 }
 
 const EMPTY_FORM: FormState = {
-  title: "", description: "", category: "", district: "", town: "",
+  title: "", description: "", category: "", subcategory: "", district: "", town: "",
   address: "", mapLink: "", price: "", period: "perDay", quantity: 1, condition: "used",
   contactName: "", phone: "", whatsapp: "", email: "",
 };
@@ -111,6 +123,9 @@ export default function EditAdPage() {
 
   const t = dict[lang];
   const { bg, surface, text, textMuted, border, gold } = colors;
+
+  const selectedCategory = categories.find((c) => String(c.id) === form.category);
+  const isVehicle = selectedCategory?.name_en === VEHICLES_CATEGORY_NAME;
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -138,6 +153,7 @@ export default function EditAdPage() {
           title: data.title ?? "",
           description: data.description ?? "",
           category: data.category_id ? String(data.category_id) : "",
+          subcategory: data.subcategory ?? "",
           district: data.district ?? "",
           town: data.town ?? "",
           address: data.address ?? "",
@@ -170,6 +186,7 @@ export default function EditAdPage() {
     const req: (keyof FormState)[] = ["title", "description", "category", "district", "town", "price", "contactName", "phone"];
     const errs: Record<string, boolean> = {};
     req.forEach((k) => { if (!String(form[k]).trim()) errs[k] = true; });
+    if (isVehicle && !form.subcategory) errs.subcategory = true;
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -185,6 +202,7 @@ export default function EditAdPage() {
         title: form.title,
         description: form.description,
         category_id: form.category ? Number(form.category) : null,
+        subcategory: isVehicle ? form.subcategory : null,
         district: form.district,
         town: form.town,
         price: Number(form.price),
@@ -246,14 +264,72 @@ export default function EditAdPage() {
             <textarea value={form.description} onChange={(e) => update("description", e.target.value)} placeholder={t.descPh} rows={4} style={{ ...fieldStyle(errors.description), resize: "vertical", fontFamily: "inherit" }} />
             {errors.description && <FieldError text={t.required} />}
           </div>
-          <div>
+          <div style={{ marginBottom: isVehicle ? 18 : 0 }}>
             <label style={labelStyle}>{t.category} *</label>
-            <select value={form.category} onChange={(e) => update("category", e.target.value)} style={fieldStyle(errors.category)}>
-              <option value="">{t.selectCategory}</option>
-              {categories.map((c) => <option key={c.id} value={c.id}>{c[`name_${lang}`]}</option>)}
-            </select>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(96px,1fr))", gap: 10 }}>
+              {categories.map((c) => {
+                const Icon = CATEGORY_ICONS[c.name_en] ?? Layers3;
+                const selected = form.category === String(c.id);
+                return (
+                  <button
+                    type="button"
+                    key={c.id}
+                    onClick={() => {
+                      update("category", String(c.id));
+                      if (c.name_en !== VEHICLES_CATEGORY_NAME) update("subcategory", "");
+                    }}
+                    className="btn"
+                    style={{
+                      display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+                      padding: "14px 8px", borderRadius: 14, textAlign: "center",
+                      border: `1px solid ${selected ? gold : (errors.category ? danger : border)}`,
+                      background: selected ? (dark ? "#2A2410" : "#FFF7E0") : (dark ? "#141B1F" : "#F8F9FA"),
+                      color: text,
+                    }}
+                  >
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: dark ? "#233038" : "#FFF7E0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Icon size={18} color={gold} />
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 500, lineHeight: 1.3 }}>{c[`name_${lang}`]}</span>
+                  </button>
+                );
+              })}
+            </div>
             {errors.category && <FieldError text={t.required} />}
           </div>
+
+          {isVehicle && (
+            <div>
+              <label style={labelStyle}>{t.subcategoryLabel} *</label>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                {([
+                  ["forRent", t.forRent, t.forRentDesc],
+                  ["forHire", t.forHire, t.forHireDesc],
+                ] as [VehicleSubcategory, string, string][]).map(([sc, label, desc]) => (
+                  <button
+                    type="button"
+                    key={sc}
+                    onClick={() => {
+                      update("subcategory", sc);
+                      if (sc === "forHire") update("period", "perKm");
+                      else if (form.period === "perHour" || form.period === "perKm") update("period", "perDay");
+                    }}
+                    className="btn"
+                    style={{
+                      flex: "1 1 150px", textAlign: "left", padding: "13px 14px", borderRadius: 12,
+                      border: `1px solid ${form.subcategory === sc ? gold : (errors.subcategory ? danger : border)}`,
+                      background: form.subcategory === sc ? (dark ? "#2A2410" : "#FFF7E0") : "transparent",
+                      color: text,
+                    }}
+                  >
+                    <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{label}</div>
+                    <div style={{ fontSize: 12, color: textMuted, lineHeight: 1.4 }}>{desc}</div>
+                  </button>
+                ))}
+              </div>
+              {errors.subcategory && <FieldError text={t.required} />}
+            </div>
+          )}
         </Section>
 
         <Section title={t.sectionLocation}>
@@ -283,22 +359,30 @@ export default function EditAdPage() {
         </Section>
 
         <Section title={t.sectionPricing}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 18 }} className="grid2">
-            <div>
-              <label style={labelStyle}>{t.price} *</label>
-              <input type="number" value={form.price} onChange={(e) => update("price", e.target.value)} placeholder={t.pricePh} style={fieldStyle(errors.price)} />
+          {isVehicle && form.subcategory === "forHire" ? (
+            <div style={{ marginBottom: 18 }}>
+              <label style={labelStyle}>{t.pricePerKm} *</label>
+              <input type="number" inputMode="decimal" value={form.price} onChange={(e) => update("price", e.target.value)} placeholder={t.pricePerKmPh} style={fieldStyle(errors.price)} />
               {errors.price && <FieldError text={t.required} />}
             </div>
-            <div>
-              <label style={labelStyle}>{t.period}</label>
-              <select value={form.period} onChange={(e) => update("period", e.target.value)} style={fieldStyle(false)}>
-                <option value="perHour">{t.perHour}</option>
-                <option value="perDay">{t.perDay}</option>
-                <option value="perWeek">{t.perWeek}</option>
-                <option value="perMonth">{t.perMonth}</option>
-              </select>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 18 }} className="grid2">
+              <div>
+                <label style={labelStyle}>{t.price} *</label>
+                <input type="number" inputMode="decimal" value={form.price} onChange={(e) => update("price", e.target.value)} placeholder={t.pricePh} style={fieldStyle(errors.price)} />
+                {errors.price && <FieldError text={t.required} />}
+              </div>
+              <div>
+                <label style={labelStyle}>{t.period}</label>
+                <select value={form.period} onChange={(e) => update("period", e.target.value)} style={fieldStyle(false)}>
+                  {!isVehicle && <option value="perHour">{t.perHour}</option>}
+                  <option value="perDay">{t.perDay}</option>
+                  <option value="perWeek">{t.perWeek}</option>
+                  <option value="perMonth">{t.perMonth}</option>
+                </select>
+              </div>
             </div>
-          </div>
+          )}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }} className="grid2">
             <div>
               <label style={labelStyle}>{t.quantity}</label>
