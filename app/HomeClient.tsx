@@ -36,6 +36,7 @@ const dict = {
     condition: "Used", conditionNew: "New",
     noAdsYet: "No listings yet. Be the first to post one!",
     featuredBadge: "FEATURED",
+    forRent: "For Rent", forHire: "For Hire",
     createAdModalDesc: "You can publish an advertisement without creating an account. If you login or register, you can edit and manage your advertisements later.",
     loginAndManage: "Log in & manage ads",
     continueWithoutReg: "Continue without registration",
@@ -56,6 +57,7 @@ const dict = {
     condition: "පරණ", conditionNew: "අලුත්",
     noAdsYet: "තවම දැන්වීම් නැත. පළමු වන්නා වන්න!",
     featuredBadge: "විශේෂාංගිත",
+    forRent: "කුලියට", forHire: "සේවා කුලියට",
     createAdModalDesc: "ගිණුමක් නොමැතිවම ඔබට දැන්වීමක් පළ කළ හැක. ඔබ පිවිසෙන්නේ හෝ ලියාපදිංචි වන්නේ නම්, පසුව ඔබේ දැන්වීම් සංස්කරණය කර කළමනාකරණය කළ හැක.",
     loginAndManage: "පිවිසී දැන්වීම් කළමනාකරණය කරන්න",
     continueWithoutReg: "ලියාපදිංචි නොවී ඉදිරියට යන්න",
@@ -76,6 +78,7 @@ const dict = {
     condition: "பழையது", conditionNew: "புதியது",
     noAdsYet: "இன்னும் விளம்பரங்கள் இல்லை. முதலில் பதிவு செய்யுங்கள்!",
     featuredBadge: "சிறப்பு",
+    forRent: "வாடகைக்கு", forHire: "சேவை வாடகை",
     createAdModalDesc: "கணக்கு உருவாக்காமலேயே நீங்கள் ஒரு விளம்பரத்தை வெளியிடலாம். நீங்கள் உள்நுழைந்தால் அல்லது பதிவு செய்தால், பின்னர் உங்கள் விளம்பரங்களைத் திருத்தி நிர்வகிக்கலாம்.",
     loginAndManage: "உள்நுழைந்து விளம்பரங்களை நிர்வகிக்கவும்",
     continueWithoutReg: "பதிவு செய்யாமல் தொடரவும்",
@@ -315,6 +318,15 @@ function AdSection({ title, viewAll, ads, t }: { title: string; viewAll: string;
                 {[0, 1].map((side) => (
                   <div key={side} style={{ position: "absolute", top: -6, width: 12, height: 12, borderRadius: "50%", background: "var(--page-behind, transparent)", border: `1px solid ${border}`, left: side === 0 ? -6 : "auto", right: side === 1 ? -6 : "auto" }} />
                 ))}
+                {ad.subcategory && (
+                  <span style={{
+                    display: "inline-block", fontSize: 10.5, fontWeight: 600, padding: "3px 9px", borderRadius: 8, marginBottom: 8,
+                    background: ad.subcategory === "forRent" ? (dark ? "#123028" : "#E1F5EE") : (dark ? "#2A2410" : "#FFF7E0"),
+                    color: ad.subcategory === "forRent" ? "#0F6E56" : "#8A6100",
+                  }}>
+                    {ad.subcategory === "forRent" ? t.forRent : t.forHire}
+                  </span>
+                )}
                 <div style={{ fontSize: 14.5, fontWeight: 600, marginBottom: 6, lineHeight: 1.35 }}>{ad.title}</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12.5, color: textMuted, marginBottom: 12 }}>
                   <MapPin size={12} /> {ad.town}, {ad.district}

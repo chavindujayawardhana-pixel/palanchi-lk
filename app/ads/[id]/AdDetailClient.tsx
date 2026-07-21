@@ -25,6 +25,7 @@ const dict = {
     description: "Description", location: "Location", viewOnMap: "View on map",
     contactLister: "Contact lister", call: "Call", whatsapp: "WhatsApp", email: "Email",
     save: "Save", share: "Share", report: "Report", verified: "Verified lister",
+    forRent: "For Rent", forHire: "For Hire",
     similarAds: "Similar listings", safetyTitle: "Safety tips",
     safetyTips: [
       "Meet in a public place or verify the item in person before paying.",
@@ -40,6 +41,7 @@ const dict = {
     description: "විස්තරය", location: "ස්ථානය", viewOnMap: "සිතියමේ බලන්න",
     contactLister: "දැන්වීම්කරු අමතන්න", call: "අමතන්න", whatsapp: "WhatsApp", email: "විද්‍යුත් තැපෑල",
     save: "සුරකින්න", share: "බෙදාගන්න", report: "වාර්තා කරන්න", verified: "සත්‍යාපිත දැන්වීම්කරු",
+    forRent: "කුලියට", forHire: "සේවා කුලියට",
     similarAds: "සමාන දැන්වීම්", safetyTitle: "ආරක්ෂක ඉඟි",
     safetyTips: [
       "ගෙවීමට කලින් ප්‍රසිද්ධ ස්ථානයක හමුවී උපකරණය පරීක්ෂා කරන්න.",
@@ -55,6 +57,7 @@ const dict = {
     description: "விளக்கம்", location: "இடம்", viewOnMap: "மேப்பில் பார்க்க",
     contactLister: "விளம்பரதாரரை தொடர்பு கொள்ள", call: "அழை", whatsapp: "WhatsApp", email: "மின்னஞ்சல்",
     save: "சேமி", share: "பகிர்", report: "புகார்", verified: "சரிபார்க்கப்பட்ட விளம்பரதாரர்",
+    forRent: "வாடகைக்கு", forHire: "சேவை வாடகை",
     similarAds: "ஒத்த விளம்பரங்கள்", safetyTitle: "பாதுகாப்பு குறிப்புகள்",
     safetyTips: [
       "பணம் செலுத்தும் முன் பொது இடத்தில் சந்தித்து பொருளை சரிபார்க்கவும்.",
@@ -154,6 +157,15 @@ export function AdDetailClient({ id }: { id: string }) {
           <div style={{ marginTop: 24 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
               <div>
+                {ad.subcategory && (
+                  <span style={{
+                    display: "inline-block", fontSize: 10.5, fontWeight: 600, padding: "3px 9px", borderRadius: 8, marginBottom: 8,
+                    background: ad.subcategory === "forRent" ? (dark ? "#123028" : "#E1F5EE") : (dark ? "#2A2410" : "#FFF7E0"),
+                    color: ad.subcategory === "forRent" ? "#0F6E56" : "#8A6100",
+                  }}>
+                    {ad.subcategory === "forRent" ? t.forRent : t.forHire}
+                  </span>
+                )}
                 <h1 className="disp" style={{ fontSize: 24, fontWeight: 700, margin: "0 0 8px" }}>{ad.title}</h1>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13.5, color: textMuted }}>
                   <MapPin size={14} /> {ad.town}, {ad.district}
