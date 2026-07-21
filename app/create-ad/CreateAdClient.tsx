@@ -13,6 +13,7 @@ import { danger } from "@/lib/theme";
 import { supabase } from "@/lib/supabase";
 import { CATEGORY_ICONS, VEHICLES_CATEGORY_NAME, type VehicleSubcategory } from "@/lib/data";
 import { Layers3 } from "lucide-react";
+import { compressImage, UnsupportedImageError, ImageTooLargeError } from "@/lib/imageCompression";
 
 const dict = {
   en: {
@@ -32,7 +33,7 @@ const dict = {
     phone: "Phone", phonePh: "07X XXX XXXX", whatsapp: "WhatsApp", whatsappPh: "07X XXX XXXX",
     email: "Email", emailPh: "you@example.com",
     sectionImages: "Photos", imagesSub: "Upload up to 10 photos. Drag to reorder, click the star to set the cover image.",
-    dropText: "Drag and drop photos here, or click to browse", dropSub: "JPG or PNG, max 5MB each",
+    dropText: "Drag and drop photos here, or click to browse", dropSub: "JPG, PNG or HEIC — large photos are resized automatically",
     cover: "Cover", setCover: "Set as cover",
     submit: "Submit for review", submitting: "Submitting...",
     required: "This field is required",
@@ -41,6 +42,9 @@ const dict = {
     backHome: "Back to home", postAnother: "Post another ad",
     maxImages: "Maximum 10 images allowed",
     submitError: "Something went wrong while submitting your ad. Please try again.",
+    imageProcessing: "Processing photo…",
+    imageTooLarge: "This photo is too large to upload, even after compression. Please choose a smaller photo.",
+    imageUnsupported: "This photo format isn't supported by your browser. Please convert it (e.g. to JPG) and try again.",
   },
   si: {
     formTitle: "දැන්වීමක් පළ කරන්න", formSub: "පහත විස්තර පුරවන්න. අපගේ කණ්ඩායම සෑම දැන්වීමක්ම ප්‍රකාශයට පත් කිරීමට පෙර සමාලෝචනය කරයි.",
@@ -59,7 +63,7 @@ const dict = {
     phone: "දුරකථනය", phonePh: "07X XXX XXXX", whatsapp: "WhatsApp", whatsappPh: "07X XXX XXXX",
     email: "විද්‍යුත් තැපෑල", emailPh: "you@example.com",
     sectionImages: "ඡායාරූප", imagesSub: "ඡායාරූප 10ක් දක්වා උඩුගත කරන්න. නැවත සකස් කිරීමට ඇදගෙන යන්න, කවර පින්තූරය සැකසීමට තරුව ක්ලික් කරන්න.",
-    dropText: "ඡායාරූප මෙතනට ඇද දමන්න, හෝ ක්ලික් කර පිරික්සන්න", dropSub: "JPG හෝ PNG, උපරිම 5MB බැගින්",
+    dropText: "ඡායාරූප මෙතනට ඇද දමන්න, හෝ ක්ලික් කර පිරික්සන්න", dropSub: "JPG, PNG හෝ HEIC — විශාල ඡායාරූප ස්වයංක්‍රීයව ප්‍රමාණය අඩු කෙරේ",
     cover: "කවරය", setCover: "කවර පින්තූරය කරන්න",
     submit: "සමාලෝචනය සඳහා ඉදිරිපත් කරන්න", submitting: "ඉදිරිපත් කරමින්...",
     required: "මෙම කෙත්‍රය අවශ්‍යයි",
@@ -68,6 +72,9 @@ const dict = {
     backHome: "මුල් පිටුවට", postAnother: "තවත් දැන්වීමක් පළ කරන්න",
     maxImages: "උපරිම ඡායාරූප 10ක් පමණි",
     submitError: "ඔබේ දැන්වීම ඉදිරිපත් කිරීමේදී දෝෂයක් ඇති විය. නැවත උත්සාහ කරන්න.",
+    imageProcessing: "ඡායාරූපය සකසමින්…",
+    imageTooLarge: "සම්පීඩනයෙන් පසුවත් මෙම ඡායාරූපය උඩුගත කිරීමට විශාල වැඩිය. කරුණාකර කුඩා ඡායාරූපයක් තෝරන්න.",
+    imageUnsupported: "මෙම ඡායාරූප ආකෘතිය ඔබේ බ්‍රවුසරය මගින් සහාය නොදක්වයි. එය (උදා: JPG ලෙස) පරිවර්තනය කර නැවත උත්සාහ කරන්න.",
   },
   ta: {
     formTitle: "விளம்பரத்தை வெளியிடுங்கள்", formSub: "கீழே உள்ள விவரங்களை நிரப்பவும். வெளியிடுவதற்கு முன் எங்கள் குழு ஒவ்வொரு விளம்பரத்தையும் ஆய்வு செய்கிறது.",
@@ -86,7 +93,7 @@ const dict = {
     phone: "தொலைபேசி", phonePh: "07X XXX XXXX", whatsapp: "WhatsApp", whatsappPh: "07X XXX XXXX",
     email: "மின்னஞ்சல்", emailPh: "you@example.com",
     sectionImages: "புகைப்படங்கள்", imagesSub: "10 புகைப்படங்கள் வரை பதிவேற்றவும். மறுவரிசைப்படுத்த இழுக்கவும், அட்டைப் படமாக அமைக்க நட்சத்திரத்தை கிளிக் செய்யவும்.",
-    dropText: "புகைப்படங்களை இங்கே இழுத்து விடவும், அல்லது கிளிக் செய்து உலாவவும்", dropSub: "JPG அல்லது PNG, ஒன்றுக்கு அதிகபட்சம் 5MB",
+    dropText: "புகைப்படங்களை இங்கே இழுத்து விடவும், அல்லது கிளிக் செய்து உலாவவும்", dropSub: "JPG, PNG அல்லது HEIC — பெரிய புகைப்படங்கள் தானாக சுருக்கப்படும்",
     cover: "அட்டை", setCover: "அட்டைப் படமாக அமை",
     submit: "மதிப்பாய்வுக்கு சமர்ப்பிக்கவும்", submitting: "சமர்ப்பிக்கிறது...",
     required: "இந்த புலம் அவசியம்",
@@ -95,11 +102,17 @@ const dict = {
     backHome: "முகப்புக்கு திரும்பு", postAnother: "மற்றொரு விளம்பரத்தை இடுங்கள்",
     maxImages: "அதிகபட்சம் 10 படங்கள் மட்டுமே அனுமதிக்கப்படும்",
     submitError: "உங்கள் விளம்பரத்தை சமர்ப்பிக்கும் போது பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.",
+    imageProcessing: "புகைப்படம் தயாராகிறது…",
+    imageTooLarge: "சுருக்கிய பின்னரும் இந்த புகைப்படம் பதிவேற்ற மிகவும் பெரியது. தயவுசெய்து சிறிய புகைப்படத்தை தேர்ந்தெடுக்கவும்.",
+    imageUnsupported: "இந்த புகைப்பட வடிவமைப்பிற்கு உங்கள் உலாவியில் ஆதரவு இல்லை. அதை (எ.கா. JPG ஆக) மாற்றி மீண்டும் முயற்சிக்கவும்.",
   },
 };
 
 const MAX_IMAGES = 10;
-const MAX_SIZE = 5 * 1024 * 1024;
+// Phone camera photos are frequently 5-20MB; we accept large originals here and
+// shrink them client-side (see compressImage) rather than rejecting them outright.
+const MAX_RAW_SIZE = 30 * 1024 * 1024;
+const MAX_UPLOAD_SIZE = 5 * 1024 * 1024;
 
 interface UploadedImage {
   file: File;
@@ -148,6 +161,8 @@ export function CreateAdClient() {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [coverIndex, setCoverIndex] = useState(0);
+  const [processingImages, setProcessingImages] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -195,13 +210,40 @@ export function CreateAdClient() {
     setForm((f) => ({ ...f, [key]: val }));
   }
 
-  function handleFiles(fileList: FileList) {
-    const incoming = Array.from(fileList).filter((f) => f.type.startsWith("image/") && f.size <= MAX_SIZE);
-    setImages((prev) => {
-      const room = MAX_IMAGES - prev.length;
-      const toAdd = incoming.slice(0, room).map((f) => ({ file: f, url: URL.createObjectURL(f), id: Math.random().toString(36).slice(2) }));
-      return [...prev, ...toAdd];
-    });
+  async function handleFiles(fileList: FileList) {
+    setImageError(null);
+    const room = MAX_IMAGES - images.length;
+    if (room <= 0) return;
+
+    // Some mobile browsers report an empty `type` for HEIC/HEIF photos, so we
+    // also accept by file extension rather than relying on MIME type alone.
+    const isImageLike = (f: File) => f.type.startsWith("image/") || /\.(heic|heif)$/i.test(f.name);
+    const candidates = Array.from(fileList).filter(isImageLike).slice(0, room);
+
+    if (candidates.length === 0) return;
+    setProcessingImages(true);
+    try {
+      for (const f of candidates) {
+        if (f.size > MAX_RAW_SIZE) {
+          setImageError(t.imageTooLarge);
+          continue;
+        }
+        try {
+          const compressed = await compressImage(f, { maxOutputBytes: MAX_UPLOAD_SIZE });
+          setImages((prev) => {
+            if (prev.length >= MAX_IMAGES) return prev;
+            return [...prev, { file: compressed, url: URL.createObjectURL(compressed), id: Math.random().toString(36).slice(2) }];
+          });
+        } catch (err) {
+          console.error("[CreateAd] image processing failed", { name: f.name, size: f.size, type: f.type, err });
+          if (err instanceof ImageTooLargeError) setImageError(t.imageTooLarge);
+          else if (err instanceof UnsupportedImageError) setImageError(t.imageUnsupported);
+          else setImageError(t.imageUnsupported);
+        }
+      }
+    } finally {
+      setProcessingImages(false);
+    }
   }
 
   function removeImage(id: string) {
@@ -229,6 +271,7 @@ export function CreateAdClient() {
     setSubmitting(true);
     setSubmitError(null);
 
+    let stage = "insert_ad";
     try {
       const adId = crypto.randomUUID();
       const { error: insertError } = await supabase
@@ -261,11 +304,12 @@ export function CreateAdClient() {
         const rows = [];
         for (let idx = 0; idx < images.length; idx++) {
           const img = images[idx];
+          stage = `upload_image_${idx + 1}_of_${images.length}`;
           const ext = img.file.name.split(".").pop();
           const path = `${adId}/${img.id}.${ext}`;
           const { error: uploadError } = await supabase.storage
             .from("advertisement-images")
-            .upload(path, img.file);
+            .upload(path, img.file, { contentType: img.file.type || "image/jpeg" });
           if (uploadError) throw uploadError;
           const { data: pub } = supabase.storage.from("advertisement-images").getPublicUrl(path);
           rows.push({
@@ -275,14 +319,18 @@ export function CreateAdClient() {
             sort_order: idx,
           });
         }
+        stage = "insert_image_rows";
         const { error: imagesError } = await supabase.from("advertisement_images").insert(rows);
         if (imagesError) throw imagesError;
       }
 
       setSubmitted(true);
     } catch (err) {
-      console.error(err);
-      setSubmitError(t.submitError);
+      const detail = err instanceof Error ? err.message
+        : typeof err === "object" && err !== null && "message" in err ? String((err as { message: unknown }).message)
+        : String(err);
+      console.error(`[CreateAd] submit failed at stage "${stage}":`, err);
+      setSubmitError(detail ? `${t.submitError} (${detail})` : t.submitError);
     } finally {
       setSubmitting(false);
     }
@@ -522,9 +570,11 @@ export function CreateAdClient() {
             <UploadCloud size={26} color={dragOver ? gold : textMuted} style={{ marginBottom: 10 }} />
             <div style={{ fontSize: 14, fontWeight: 500 }}>{t.dropText}</div>
             <div style={{ fontSize: 12.5, color: textMuted, marginTop: 4 }}>{t.dropSub}</div>
-            <input ref={fileInputRef} type="file" accept="image/*" multiple hidden onChange={(e) => e.target.files && handleFiles(e.target.files)} />
+            <input ref={fileInputRef} type="file" accept="image/*,.heic,.heif" multiple hidden onChange={(e) => e.target.files && handleFiles(e.target.files)} />
           </div>
 
+          {processingImages && <div style={{ fontSize: 12.5, color: textMuted, marginBottom: 14 }}>{t.imageProcessing}</div>}
+          {imageError && <div style={{ fontSize: 12.5, color: danger, marginBottom: 14 }}>{imageError}</div>}
           {images.length >= MAX_IMAGES && <div style={{ fontSize: 12.5, color: danger, marginBottom: 14 }}>{t.maxImages}</div>}
 
           {images.length > 0 && (
