@@ -17,9 +17,9 @@ export interface NavLink {
 }
 
 const CORE_NAV_DICT = {
-  en: { home: "Home", createAd: "Create ad", contact: "Contact" },
-  si: { home: "මුල් පිටුව", createAd: "දැන්වීමක් පළ කරන්න", contact: "අමතන්න" },
-  ta: { home: "முகப்பு", createAd: "விளம்பரம் இடு", contact: "தொடர்பு" },
+  en: { home: "Home", createAd: "Create ad", contact: "Contact", toggleMenu: "Toggle menu", closeMenu: "Close menu" },
+  si: { home: "මුල් පිටුව", createAd: "දැන්වීමක් පළ කරන්න", contact: "අමතන්න", toggleMenu: "මෙනුව විවෘත/වසන්න", closeMenu: "මෙනුව වසන්න" },
+  ta: { home: "முகப்பு", createAd: "விளம்பரம் இடு", contact: "தொடர்பு", toggleMenu: "மெனுவைத் திற/மூடு", closeMenu: "மெனுவை மூடு" },
 };
 
 interface NavbarProps {
@@ -152,7 +152,7 @@ export function Navbar({
           <button
             className="btn mobile-nav nav-icon-btn"
             onClick={() => setMenuOpen((o) => !o)}
-            aria-label="Toggle menu"
+            aria-label={t.toggleMenu}
             style={{
               width: `var(--nav-control-size, ${darkSize}px)`,
               height: `var(--nav-control-size, ${darkSize}px)`,
@@ -221,7 +221,7 @@ export function Navbar({
         <button
           type="button"
           onClick={closeMenu}
-          aria-label="Close menu"
+          aria-label={t.closeMenu}
           className="btn"
           style={{
             width: 36,

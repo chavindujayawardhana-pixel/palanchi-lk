@@ -234,15 +234,30 @@ function mapUserRow(row: AdminUserRow): AdminUser {
 }
 
 const CATS = [
-  { name: "Scaffolding", count: 24 }, { name: "Construction equipment", count: 41 }, { name: "Generators", count: 18 },
-  { name: "Power tools", count: 33 }, { name: "Excavators", count: 12 }, { name: "Containers", count: 9 },
-  { name: "Vehicles", count: 27 }, { name: "Event equipment", count: 15 }, { name: "Others", count: 7 },
+  { name_en: "Scaffolding", name_si: "පලංචිය", name_ta: "சாரக்கட்டு", count: 24 },
+  { name_en: "Construction equipment", name_si: "ඉදිකිරීම් උපකරණ", name_ta: "கட்டுமான உபகரணங்கள்", count: 41 },
+  { name_en: "Generators", name_si: "ජනක යන්ත්‍ර", name_ta: "ஜெனரேட்டர்கள்", count: 18 },
+  { name_en: "Power tools", name_si: "විදුලි මෙවලම්", name_ta: "மின் கருவிகள்", count: 33 },
+  { name_en: "Excavators", name_si: "කැණීම් යන්ත්‍ර", name_ta: "அகழ்வாராய்ச்சிகள்", count: 12 },
+  { name_en: "Containers", name_si: "බහාලුම්", name_ta: "கொள்கலன்கள்", count: 9 },
+  { name_en: "Vehicles", name_si: "වාහන", name_ta: "வாகனங்கள்", count: 27 },
+  { name_en: "Event equipment", name_si: "උත්සව උපකරණ", name_ta: "நிகழ்வு உபகரணங்கள்", count: 15 },
+  { name_en: "Others", name_si: "වෙනත්", name_ta: "மற்றவை", count: 7 },
 ];
 
 const TREND = [
-  { d: "Jul 08", ads: 12 }, { d: "Jul 09", ads: 18 }, { d: "Jul 10", ads: 15 }, { d: "Jul 11", ads: 22 },
-  { d: "Jul 12", ads: 19 }, { d: "Jul 13", ads: 27 }, { d: "Jul 14", ads: 24 },
+  { date: "2026-07-08", ads: 12 }, { date: "2026-07-09", ads: 18 }, { date: "2026-07-10", ads: 15 }, { date: "2026-07-11", ads: 22 },
+  { date: "2026-07-12", ads: 19 }, { date: "2026-07-13", ads: 27 }, { date: "2026-07-14", ads: 24 },
 ];
+
+// Localized month abbreviations hit a Recharts SVG text-wrapping bug that mangles
+// Sinhala/Tamil conjunct clusters when truncating for width. Chart tick labels use
+// a numeric MM-DD format instead — language-neutral, and consistent with the
+// "2026-07-21"-style dates already shown elsewhere in the app (e.g. ad detail "Posted").
+function formatTrendDate(iso: string): string {
+  const [, m, d] = iso.split("-");
+  return `${m}-${d}`;
+}
 
 export default function AdminPage() {
   const { lang, dark, colors } = useTheme();
@@ -506,7 +521,7 @@ export default function AdminPage() {
                 <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 16, padding: 20 }}>
                   <div className="disp" style={{ fontSize: 15, fontWeight: 600, marginBottom: 14 }}>{t.adsOverTime}</div>
                   <ResponsiveContainer width="100%" height={200}>
-                    <LineChart data={TREND}>
+                    <LineChart data={TREND.map((p) => ({ ...p, d: formatTrendDate(p.date) }))}>
                       <CartesianGrid strokeDasharray="3 3" stroke={border} vertical={false} />
                       <XAxis dataKey="d" tick={{ fontSize: 11, fill: textMuted }} axisLine={{ stroke: border }} tickLine={false} />
                       <YAxis tick={{ fontSize: 11, fill: textMuted }} axisLine={false} tickLine={false} width={26} />
@@ -518,7 +533,7 @@ export default function AdminPage() {
                 <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 16, padding: 20 }}>
                   <div className="disp" style={{ fontSize: 15, fontWeight: 600, marginBottom: 14 }}>{t.adsByCategory}</div>
                   <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={CATS.slice(0, 6)} layout="vertical" margin={{ left: 10 }}>
+                    <BarChart data={CATS.slice(0, 6).map((c) => ({ ...c, name: c[`name_${lang}`] }))} layout="vertical" margin={{ left: 10 }}>
                       <XAxis type="number" hide />
                       <YAxis type="category" dataKey="name" tick={{ fontSize: 10.5, fill: textMuted }} width={110} axisLine={false} tickLine={false} />
                       <Tooltip contentStyle={{ background: surface, border: `1px solid ${border}`, borderRadius: 8, fontSize: 12 }} />
@@ -681,9 +696,9 @@ export default function AdminPage() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 14 }}>
                 {CATS.map((c) => (
-                  <div key={c.name} style={{ background: surface, border: `1px solid ${border}`, borderRadius: 14, padding: 18, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div key={c.name_en} style={{ background: surface, border: `1px solid ${border}`, borderRadius: 14, padding: 18, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 500 }}>{c.name}</div>
+                      <div style={{ fontSize: 14, fontWeight: 500 }}>{c[`name_${lang}`]}</div>
                       <div style={{ fontSize: 12, color: textMuted, marginTop: 3 }}>{c.count} {t.adCount.toLowerCase()}</div>
                     </div>
                     <Tag size={17} color={gold} />

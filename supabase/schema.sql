@@ -71,15 +71,15 @@ create table if not exists public.advertisement_images (
 
 insert into public.categories (name_en, name_si, name_ta)
 select * from (values
-  ('Scaffolding', 'ස්කැෆෝල්ඩිං', 'ஸ்கஃபோல்டிங்'),
+  ('Scaffolding', 'පලංචිය', 'சாரக்கட்டு'),
   ('Construction equipment', 'ඉදිකිරීම් උපකරණ', 'கட்டுமான உபகரணங்கள்'),
-  ('Generators', 'ජනරේටර්', 'ஜெனரேட்டர்கள்'),
+  ('Generators', 'ජනක යන්ත්‍ර', 'ஜெனரேட்டர்கள்'),
   ('Power tools', 'විදුලි මෙවලම්', 'மின் கருவிகள்'),
-  ('Excavators', 'කැණීම් යන්ත්‍ර', 'அகழ்வாராய்ச்சி'),
-  ('Backhoes', 'බැක්හෝ', 'பேக்ஹோ'),
+  ('Excavators', 'කැණීම් යන්ත්‍ර', 'அகழ்வாராய்ச்சிகள்'),
+  ('Backhoes', 'බැකෝ යන්ත්‍ර', 'பேக்ஹோ'),
   ('Forklifts', 'ෆෝක්ලිෆ්ට්', 'ஃபோர்க்லிஃப்ட்'),
-  ('Rollers', 'රෝලර්', 'ரோலர்'),
-  ('Containers', 'කන්ටේනර්', 'கொள்கலன்கள்'),
+  ('Rollers', 'රෝලර්', 'உருளைகள்'),
+  ('Containers', 'බහාලුම්', 'கொள்கலன்கள்'),
   ('Vehicles', 'වාහන', 'வாகனங்கள்'),
   ('Agricultural equipment', 'කෘෂිකාර්මික උපකරණ', 'விவசாய உபகரணங்கள்'),
   ('Electrical equipment', 'විදුලි උපකරණ', 'மின் உபகரணங்கள்'),

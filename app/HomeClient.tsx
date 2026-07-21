@@ -35,12 +35,16 @@ const dict = {
     copyright: "© 2026 Palanchi.lk", madeBy: "Made with care by Chavindu Jayawardana",
     condition: "Used", conditionNew: "New",
     noAdsYet: "No listings yet. Be the first to post one!",
+    featuredBadge: "FEATURED",
+    createAdModalDesc: "You can publish an advertisement without creating an account. If you login or register, you can edit and manage your advertisements later.",
+    loginAndManage: "Log in & manage ads",
+    continueWithoutReg: "Continue without registration",
   },
   si: {
     navHome: "මුල් පිටුව", navCreate: "දැන්වීමක් පළ කරන්න", navContact: "අමතන්න", login: "පිවිසෙන්න",
     heroTitle: "ශ්‍රී ලංකාව පුරා ඕනෑම දෙයක් කුලියට ගන්න",
-    heroSub: "ස්කැෆෝල්ඩිං, යන්ත්‍රෝපකරණ, වාහන සහ මෙවලම් — ඔබ අසල සොයන්න හෝ ඔබේ දේ ලැයිස්තුගත කරන්න.",
-    searchPlaceholder: "ඔබ සොයන්නේ කුමක්ද? උදා: ජනරේටරය, බැක්හෝ...",
+    heroSub: "පලංචිය, යන්ත්‍රෝපකරණ, වාහන සහ මෙවලම් — ඔබ අසල සොයන්න හෝ ඔබේ දේ ලැයිස්තුගත කරන්න.",
+    searchPlaceholder: "ඔබ සොයන්නේ කුමක්ද? උදා: ජනක යන්ත්‍රය, බැකෝ යන්ත්‍රය...",
     searchDistrict: "දිස්ත්‍රික්කය", searchTown: "නගරය", searchBtn: "සොයන්න",
     popularCategories: "ජනප්‍රිය කාණ්ඩ", browseAll: "සියල්ල බලන්න",
     featured: "විශේෂාංගිත දැන්වීම්", latest: "නවතම දැන්වීම්", viewAll: "සියල්ල බලන්න",
@@ -51,11 +55,15 @@ const dict = {
     copyright: "© 2026 Palanchi.lk", madeBy: "Chavindu Jayawardana විසින් සකසන ලදී",
     condition: "පරණ", conditionNew: "අලුත්",
     noAdsYet: "තවම දැන්වීම් නැත. පළමු වන්නා වන්න!",
+    featuredBadge: "විශේෂාංගිත",
+    createAdModalDesc: "ගිණුමක් නොමැතිවම ඔබට දැන්වීමක් පළ කළ හැක. ඔබ පිවිසෙන්නේ හෝ ලියාපදිංචි වන්නේ නම්, පසුව ඔබේ දැන්වීම් සංස්කරණය කර කළමනාකරණය කළ හැක.",
+    loginAndManage: "පිවිසී දැන්වීම් කළමනාකරණය කරන්න",
+    continueWithoutReg: "ලියාපදිංචි නොවී ඉදිරියට යන්න",
   },
   ta: {
     navHome: "முகப்பு", navCreate: "விளம்பரம் இடு", navContact: "தொடர்பு", login: "உள்நுழை",
     heroTitle: "இலங்கை முழுவதும் எதையும் யாரிடமிருந்தும் வாடகைக்கு பெறுங்கள்",
-    heroSub: "ஸ்கஃபோல்டிங், இயந்திரங்கள், வாகனங்கள் மற்றும் கருவிகள் — உங்களுக்கு அருகில் தேடுங்கள் அல்லது உங்களுடையதை பட்டியலிடுங்கள்.",
+    heroSub: "சாரக்கட்டு, இயந்திரங்கள், வாகனங்கள் மற்றும் கருவிகள் — உங்களுக்கு அருகில் தேடுங்கள் அல்லது உங்களுடையதை பட்டியலிடுங்கள்.",
     searchPlaceholder: "நீங்கள் தேடுவது என்ன? உதா: ஜெனரேட்டர், பேக்ஹோ...",
     searchDistrict: "மாவட்டம்", searchTown: "நகரம்", searchBtn: "தேடு",
     popularCategories: "பிரபலமான வகைகள்", browseAll: "அனைத்தையும் பார்க்க",
@@ -67,6 +75,10 @@ const dict = {
     copyright: "© 2026 Palanchi.lk", madeBy: "Chavindu Jayawardana ஆல் உருவாக்கப்பட்டது",
     condition: "பழையது", conditionNew: "புதியது",
     noAdsYet: "இன்னும் விளம்பரங்கள் இல்லை. முதலில் பதிவு செய்யுங்கள்!",
+    featuredBadge: "சிறப்பு",
+    createAdModalDesc: "கணக்கு உருவாக்காமலேயே நீங்கள் ஒரு விளம்பரத்தை வெளியிடலாம். நீங்கள் உள்நுழைந்தால் அல்லது பதிவு செய்தால், பின்னர் உங்கள் விளம்பரங்களைத் திருத்தி நிர்வகிக்கலாம்.",
+    loginAndManage: "உள்நுழைந்து விளம்பரங்களை நிர்வகிக்கவும்",
+    continueWithoutReg: "பதிவு செய்யாமல் தொடரவும்",
   },
 };
 
@@ -237,13 +249,13 @@ export function HomeClient() {
             </div>
             <h3 className="disp" style={{ fontSize: 19, fontWeight: 600, margin: "0 0 10px" }}>{t.navCreate}</h3>
             <p style={{ fontSize: 14.5, color: textMuted, lineHeight: 1.6, margin: "0 0 24px" }}>
-              You can publish an advertisement without creating an account. If you login or register, you can edit and manage your advertisements later.
+              {t.createAdModalDesc}
             </p>
             <Link href="/login" className="btn" style={{ display: "block", textAlign: "center", width: "100%", background: gold, color: "#1F2937", borderRadius: 12, padding: "13px", fontWeight: 600, fontSize: 15, marginBottom: 10, textDecoration: "none" }}>
-              {t.login} & manage ads
+              {t.loginAndManage}
             </Link>
             <Link href="/create-ad" className="btn" style={{ display: "block", textAlign: "center", width: "100%", background: "transparent", border: `1px solid ${border}`, color: text, borderRadius: 12, padding: "13px", fontWeight: 500, fontSize: 15, textDecoration: "none" }}>
-              Continue without registration
+              {t.continueWithoutReg}
             </Link>
           </div>
         </div>
@@ -293,7 +305,7 @@ function AdSection({ title, viewAll, ads, t }: { title: string; viewAll: string;
               <div style={{ position: "relative" }}>
                 <img src={ad.images[0]} alt={ad.title} style={{ width: "100%", height: 150, objectFit: "cover", display: "block" }} />
                 {ad.featured && (
-                  <span style={{ position: "absolute", top: 10, left: 10, background: gold, color: "#1F2937", fontSize: 11, fontWeight: 700, padding: "4px 9px", borderRadius: 8 }}>FEATURED</span>
+                  <span style={{ position: "absolute", top: 10, left: 10, background: gold, color: "#1F2937", fontSize: 11, fontWeight: 700, padding: "4px 9px", borderRadius: 8 }}>{t.featuredBadge}</span>
                 )}
                 <span style={{ position: "absolute", top: 10, right: 10, background: dark ? "rgba(16,22,26,0.85)" : "rgba(255,255,255,0.9)", fontSize: 10.5, fontWeight: 600, padding: "4px 9px", borderRadius: 8, color: ad.condition === "new" ? "#0F3D3E" : "#6B7280" }}>{ad.condition === "new" ? t.conditionNew : t.condition}</span>
               </div>

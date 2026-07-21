@@ -50,6 +50,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const colors = getColors(dark);
 
+  // Keep the <html lang> attribute in sync so assistive tech and browsers
+  // reflect the user's chosen UI language (it's a client-only toggle, not a route).
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
   // Expose a few tokens as CSS variables for pseudo-element styling
   // (placeholders, row hovers) that inline styles can't reach.
   useEffect(() => {

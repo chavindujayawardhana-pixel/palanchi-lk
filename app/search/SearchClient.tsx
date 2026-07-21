@@ -27,6 +27,7 @@ const dict = {
     condition: "Used", conditionNew: "New", noResults: "No listings match your filters",
     noResultsSub: "Try widening your search or clearing a filter.",
     searchPlaceholder: "Search title or description...",
+    featuredBadge: "FEATURED",
   },
   si: {
     navCreate: "දැන්වීමක් පළ කරන්න",
@@ -39,6 +40,7 @@ const dict = {
     condition: "පරණ", conditionNew: "අලුත්", noResults: "ඔබේ පෙරහන්වලට ගැලපෙන දැන්වීම් නැත",
     noResultsSub: "ඔබේ සෙවීම පුළුල් කරන්න හෝ පෙරහනක් ඉවත් කරන්න.",
     searchPlaceholder: "මාතෘකාව හෝ විස්තරය සොයන්න...",
+    featuredBadge: "විශේෂාංගිත",
   },
   ta: {
     navCreate: "விளம்பரம் இடு",
@@ -51,6 +53,7 @@ const dict = {
     condition: "பழையது", conditionNew: "புதியது", noResults: "உங்கள் வடிகட்டிகளுக்கு பொருந்தும் விளம்பரங்கள் இல்லை",
     noResultsSub: "உங்கள் தேடலை விரிவுபடுத்தவும் அல்லது வடிகட்டியை அழிக்கவும்.",
     searchPlaceholder: "தலைப்பு அல்லது விளக்கத்தை தேடுங்கள்...",
+    featuredBadge: "சிறப்பு",
   },
 };
 
@@ -169,9 +172,9 @@ function SearchPageInner() {
 
         <div style={{ display: "grid", gridTemplateColumns: "260px 1fr", gap: 24, alignItems: "start" }} className="layout">
           <aside className={"filters-col" + (filtersOpen ? " open" : "")} style={{ background: surface, border: `1px solid ${border}`, borderRadius: 16, padding: 20, position: "sticky", top: 88 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "4px 10px", marginBottom: 16 }}>
               <div className="disp" style={{ fontWeight: 600, fontSize: 15 }}>{t.filters}</div>
-              <button onClick={clearAll} style={{ background: "none", border: "none", color: teal, fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>{t.clear}</button>
+              <button onClick={clearAll} style={{ background: "none", border: "none", color: teal, fontSize: 12.5, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>{t.clear}</button>
             </div>
 
             <label style={labelStyle}>{t.category}</label>
@@ -241,7 +244,7 @@ function SearchPageInner() {
                   <Link key={ad.id} href={`/ads/${ad.id}`} className="card-hover" style={{ background: surface, border: `1px solid ${border}`, borderRadius: 18, overflow: "hidden", cursor: "pointer", textDecoration: "none", color: "inherit", display: "block" }}>
                     <div style={{ position: "relative" }}>
                       <img src={ad.images[0]} alt={ad.title} style={{ width: "100%", height: 148, objectFit: "cover", display: "block" }} />
-                      {ad.featured && <span style={{ position: "absolute", top: 10, left: 10, background: gold, color: "#1F2937", fontSize: 11, fontWeight: 700, padding: "4px 9px", borderRadius: 8 }}>FEATURED</span>}
+                      {ad.featured && <span style={{ position: "absolute", top: 10, left: 10, background: gold, color: "#1F2937", fontSize: 11, fontWeight: 700, padding: "4px 9px", borderRadius: 8 }}>{t.featuredBadge}</span>}
                       <span style={{ position: "absolute", top: 10, right: 10, background: dark ? "rgba(16,22,26,0.85)" : "rgba(255,255,255,0.9)", fontSize: 10.5, fontWeight: 600, padding: "4px 9px", borderRadius: 8, color: ad.condition === "new" ? "#0F3D3E" : "#6B7280" }}>
                         {ad.condition === "new" ? t.conditionNew : t.condition}
                       </span>

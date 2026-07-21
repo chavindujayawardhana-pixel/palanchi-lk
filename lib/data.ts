@@ -57,12 +57,12 @@ export interface Category {
 }
 
 export const CATEGORIES: Category[] = [
-  { key: "scaffolding", icon: Fence, en: "Scaffolding", si: "ස්කැෆෝල්ඩිං", ta: "ஸ்கஃபோல்டிங்" },
+  { key: "scaffolding", icon: Fence, en: "Scaffolding", si: "පලංචිය", ta: "சாரக்கட்டு" },
   { key: "construction", icon: HardHat, en: "Construction equip.", si: "ඉදිකිරීම් උපකරණ", ta: "கட்டுமான உபகரணங்கள்" },
-  { key: "generators", icon: Zap, en: "Generators", si: "ජනරේටර්", ta: "ஜெனரேட்டர்கள்" },
+  { key: "generators", icon: Zap, en: "Generators", si: "ජනක යන්ත්‍ර", ta: "ஜெனரேட்டர்கள்" },
   { key: "powertools", icon: Wrench, en: "Power tools", si: "විදුලි මෙවලම්", ta: "மின் கருவிகள்" },
-  { key: "excavators", icon: Tractor, en: "Excavators", si: "කැණීම් යන්ත්‍ර", ta: "அகழ்வாராய்ச்சி" },
-  { key: "containers", icon: Container, en: "Containers", si: "කන්ටේනර්", ta: "கொள்கலன்கள்" },
+  { key: "excavators", icon: Tractor, en: "Excavators", si: "කැණීම් යන්ත්‍ර", ta: "அகழ்வாராய்ச்சிகள்" },
+  { key: "containers", icon: Container, en: "Containers", si: "බහාලුම්", ta: "கொள்கலன்கள்" },
   { key: "vehicles", icon: Truck, en: "Vehicles", si: "වාහන", ta: "வாகனங்கள்" },
   { key: "electrical", icon: Cable, en: "Electrical", si: "විදුලි උපකරණ", ta: "மின் உபகரணங்கள்" },
   { key: "event", icon: PartyPopper, en: "Event equipment", si: "උත්සව උපකරණ", ta: "நிகழ்வு உபகரணங்கள்" },
@@ -72,8 +72,8 @@ export const CATEGORIES: Category[] = [
 /** Flat, per-language category names used by the "Create ad" form. */
 export const AD_CATEGORIES: Record<Lang, string[]> = {
   en: ["Scaffolding", "Construction equipment", "Generators", "Power tools", "Excavators", "Backhoes", "Forklifts", "Rollers", "Containers", "Vehicles", "Agricultural equipment", "Electrical equipment", "Event equipment", "Others"],
-  si: ["ස්කැෆෝල්ඩිං", "ඉදිකිරීම් උපකරණ", "ජනරේටර්", "විදුලි මෙවලම්", "කැණීම් යන්ත්‍ර", "බැක්හෝ", "ෆෝක්ලිෆ්ට්", "රෝලර්", "කන්ටේනර්", "වාහන", "කෘෂිකාර්මික උපකරණ", "විදුලි උපකරණ", "උත්සව උපකරණ", "වෙනත්"],
-  ta: ["ஸ்கஃபோல்டிங்", "கட்டுமான உபகரணங்கள்", "ஜெனரேட்டர்கள்", "மின் கருவிகள்", "அகழ்வாராய்ச்சி", "பேக்ஹோ", "ஃபோர்க்லிஃப்ட்", "ரோலர்", "கொள்கலன்கள்", "வாகனங்கள்", "விவசாய உபகரணங்கள்", "மின் உபகரணங்கள்", "நிகழ்வு உபகரணங்கள்", "மற்றவை"],
+  si: ["පලංචිය", "ඉදිකිරීම් උපකරණ", "ජනක යන්ත්‍ර", "විදුලි මෙවලම්", "කැණීම් යන්ත්‍ර", "බැකෝ යන්ත්‍ර", "ෆෝක්ලිෆ්ට්", "රෝලර්", "බහාලුම්", "වාහන", "කෘෂිකාර්මික උපකරණ", "විදුලි උපකරණ", "උත්සව උපකරණ", "වෙනත්"],
+  ta: ["சாரக்கட்டு", "கட்டுமான உபகரணங்கள்", "ஜெனரேட்டர்கள்", "மின் கருவிகள்", "அகழ்வாராய்ச்சிகள்", "பேக்ஹோ", "ஃபோர்க்லிஃப்ட்", "உருளைகள்", "கொள்கலன்கள்", "வாகனங்கள்", "விவசாய உபகரணங்கள்", "மின் உபகரணங்கள்", "நிகழ்வு உபகரணங்கள்", "மற்றவை"],
 };
 
 /** All 25 Sri Lankan districts. GN-division-level town data lives in lib/data/gn-divisions.json (server-only — see app/api/locations/towns). */

@@ -8,14 +8,20 @@ interface DarkModeToggleProps {
   iconSize?: number;
 }
 
+const LABEL = {
+  en: "Toggle dark mode",
+  si: "අඳුරු ප්‍රකාරය මාරු කරන්න",
+  ta: "இருண்ட பயன்முறையை மாற்று",
+};
+
 /** Sun/Moon button that toggles the shared dark-mode state. */
 export function DarkModeToggle({ size = 36, iconSize = 16 }: DarkModeToggleProps) {
-  const { dark, toggleDark, colors } = useTheme();
+  const { dark, toggleDark, colors, lang } = useTheme();
   return (
     <button
       className="btn nav-icon-btn"
       onClick={toggleDark}
-      aria-label="Toggle dark mode"
+      aria-label={LABEL[lang]}
       style={{
         width: `var(--nav-control-size, ${size}px)`,
         height: `var(--nav-control-size, ${size}px)`,
