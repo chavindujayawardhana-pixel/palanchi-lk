@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Search, MapPin, SlidersHorizontal, ArrowUpDown } from "lucide-react";
@@ -9,7 +9,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { AuthNav } from "@/components/AuthNav";
 import { DistrictField } from "@/components/DistrictField";
 import { TownField } from "@/components/TownField";
-import { type Period, type VehicleSubcategory, VEHICLES_CATEGORY_NAME } from "@/lib/data";
+import { CATEGORIES, type Period, type VehicleSubcategory, VEHICLES_CATEGORY_NAME } from "@/lib/data";
 import { fetchApprovedAds, type LiveAd } from "@/lib/ads";
 import { useCategories } from "@/lib/categories";
 import { fmt } from "@/lib/format";
@@ -84,6 +84,21 @@ function SearchPageInner() {
   const categories = useCategories();
 
   const isVehicleCategory = categories.find((c) => String(c.id) === category)?.name_en === VEHICLES_CATEGORY_NAME;
+
+  // Homepage/footer category cards link here with the CATEGORIES `key` slug
+  // (e.g. ?category=vehicles) rather than a DB id, since the id list is only
+  // known once Supabase categories load. Resolve it to the matching id once.
+  const categoryParamResolved = useRef(false);
+  useEffect(() => {
+    if (categoryParamResolved.current || categories.length === 0) return;
+    const param = searchParams.get("category");
+    if (param && !categories.some((c) => String(c.id) === param)) {
+      const slug = CATEGORIES.find((c) => c.key === param);
+      const match = slug && categories.find((c) => c.name_en === slug.dbName);
+      if (match) setCategory(String(match.id));
+    }
+    categoryParamResolved.current = true;
+  }, [categories, searchParams]);
 
   function toggleSubcat(sc: VehicleSubcategory) {
     setSubcats((prev) => (prev.includes(sc) ? prev.filter((x) => x !== sc) : [...prev, sc]));

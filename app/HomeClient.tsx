@@ -198,7 +198,7 @@ export function HomeClient() {
           {CATEGORIES.map((c) => {
             const Icon = c.icon;
             return (
-              <Link key={c.key} href="/search" className="card-hover" style={{
+              <Link key={c.key} href={`/search?category=${c.key}`} className="card-hover" style={{
                 background: surface, border: `1px solid ${border}`, borderRadius: 16, padding: "22px 12px",
                 textAlign: "center", cursor: "pointer", textDecoration: "none", color: text, display: "block"
               }}>
@@ -230,7 +230,7 @@ export function HomeClient() {
             { label: t.navCreate, href: "/create-ad" },
             { label: t.navContact, href: "/contact" },
           ]} />
-          <FooterCol title={t.fCategories} items={CATEGORIES.slice(0, 5).map((c) => ({ label: c[lang], href: "/search" }))} />
+          <FooterCol title={t.fCategories} items={CATEGORIES.slice(0, 5).map((c) => ({ label: c[lang], href: `/search?category=${c.key}` }))} />
           <FooterCol title={t.fSupport} items={[
             { label: t.fPrivacy, href: "/privacy-policy" },
             { label: t.fTerms, href: "/terms-of-service" },

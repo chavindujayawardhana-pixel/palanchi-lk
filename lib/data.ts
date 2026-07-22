@@ -54,19 +54,23 @@ export interface Category {
   en: string;
   si: string;
   ta: string;
+  /** Exact `categories.name_en` value (see CATEGORY_ICONS above) this maps to in
+   * Supabase — lets the search page resolve a homepage ?category=<key> link to
+   * the DB category id. */
+  dbName: string;
 }
 
 export const CATEGORIES: Category[] = [
-  { key: "scaffolding", icon: Fence, en: "Scaffolding", si: "පලංචිය", ta: "சாரக்கட்டு" },
-  { key: "construction", icon: HardHat, en: "Construction equip.", si: "ඉදිකිරීම් උපකරණ", ta: "கட்டுமான உபகரணங்கள்" },
-  { key: "generators", icon: Zap, en: "Generators", si: "ජනක යන්ත්‍ර", ta: "ஜெனரேட்டர்கள்" },
-  { key: "powertools", icon: Wrench, en: "Power tools", si: "විදුලි මෙවලම්", ta: "மின் கருவிகள்" },
-  { key: "excavators", icon: Tractor, en: "Excavators", si: "කැණීම් යන්ත්‍ර", ta: "அகழ்வாராய்ச்சிகள்" },
-  { key: "containers", icon: Container, en: "Containers", si: "බහාලුම්", ta: "கொள்கலன்கள்" },
-  { key: "vehicles", icon: Truck, en: "Vehicles", si: "වාහන", ta: "வாகனங்கள்" },
-  { key: "electrical", icon: Cable, en: "Electrical", si: "විදුලි උපකරණ", ta: "மின் உபகரணங்கள்" },
-  { key: "event", icon: PartyPopper, en: "Event equipment", si: "උත්සව උපකරණ", ta: "நிகழ்வு உபகரணங்கள்" },
-  { key: "other", icon: Layers3, en: "Others", si: "වෙනත්", ta: "மற்றவை" },
+  { key: "scaffolding", icon: Fence, en: "Scaffolding", si: "පලංචිය", ta: "சாரக்கட்டு", dbName: "Scaffolding" },
+  { key: "construction", icon: HardHat, en: "Construction equip.", si: "ඉදිකිරීම් උපකරණ", ta: "கட்டுமான உபகரணங்கள்", dbName: "Construction equipment" },
+  { key: "generators", icon: Zap, en: "Generators", si: "ජනක යන්ත්‍ර", ta: "ஜெனரேட்டர்கள்", dbName: "Generators" },
+  { key: "powertools", icon: Wrench, en: "Power tools", si: "විදුලි මෙවලම්", ta: "மின் கருவிகள்", dbName: "Power tools" },
+  { key: "excavators", icon: Tractor, en: "Excavators", si: "කැණීම් යන්ත්‍ර", ta: "அகழ்வாராய்ச்சிகள்", dbName: "Excavators" },
+  { key: "containers", icon: Container, en: "Containers", si: "බහාලුම්", ta: "கொள்கலன்கள்", dbName: "Containers" },
+  { key: "vehicles", icon: Truck, en: "Vehicles", si: "වාහන", ta: "வாகனங்கள்", dbName: "Vehicles" },
+  { key: "electrical", icon: Cable, en: "Electrical", si: "විදුලි උපකරණ", ta: "மின் உபகரணங்கள்", dbName: "Electrical equipment" },
+  { key: "event", icon: PartyPopper, en: "Event equipment", si: "උත්සව උපකරණ", ta: "நிகழ்வு உபகரணங்கள்", dbName: "Event equipment" },
+  { key: "other", icon: Layers3, en: "Others", si: "වෙනත්", ta: "மற்றவை", dbName: "Others" },
 ];
 
 /** Flat, per-language category names used by the "Create ad" form. */
