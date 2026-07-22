@@ -161,8 +161,15 @@ export function HomeClient() {
         >
           <div className="hero-field hero-field-query" style={{ display: "flex", alignItems: "center", gap: 8, flex: "1 1 200px", minWidth: 0, padding: "8px 10px" }}>
             <Search size={18} color={textMuted} />
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t.searchPlaceholder}
-              style={{ border: "none", outline: "none", background: "transparent", color: text, fontSize: 15, width: "100%", minWidth: 0 }} />
+            <input
+              type="search"
+              enterKeyHint="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); goToSearch(); } }}
+              placeholder={t.searchPlaceholder}
+              style={{ border: "none", outline: "none", background: "transparent", color: text, fontSize: 15, width: "100%", minWidth: 0, WebkitAppearance: "none", appearance: "none" }}
+            />
           </div>
           <div className="hero-field hero-field-side" style={{ display: "flex", alignItems: "center", gap: 8, borderLeft: `1px solid ${border}`, padding: "8px 10px", flex: "0 0 150px" }}>
             <MapPin size={18} color={textMuted} />

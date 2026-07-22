@@ -151,11 +151,21 @@ function SearchPageInner() {
     <div style={{ background: colors.bg, color: text, minHeight: "100vh" }}>
       <Navbar
         center={
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flex: "1 1 320px", background: surface, border: `1px solid ${border}`, borderRadius: 10, padding: "9px 12px" }}>
+          <form
+            onSubmit={(e) => { e.preventDefault(); (e.currentTarget.elements[0] as HTMLInputElement).blur(); }}
+            style={{ display: "flex", alignItems: "center", gap: 8, flex: "1 1 320px", background: surface, border: `1px solid ${border}`, borderRadius: 10, padding: "9px 12px" }}
+          >
             <Search size={16} color={textMuted} />
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t.searchPlaceholder}
-              style={{ border: "none", outline: "none", background: "transparent", color: text, fontSize: 14, width: "100%" }} />
-          </div>
+            <input
+              type="search"
+              enterKeyHint="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.currentTarget.blur(); } }}
+              placeholder={t.searchPlaceholder}
+              style={{ border: "none", outline: "none", background: "transparent", color: text, fontSize: 14, width: "100%", WebkitAppearance: "none", appearance: "none" }}
+            />
+          </form>
         }
         right={
           <>
