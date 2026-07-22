@@ -300,7 +300,10 @@ function SearchPageInner() {
         </div>
       </div>
 
-      <style>{`@media (max-width: 860px) { .filters-col { display: none !important; } .filters-col.open { display: block !important; } }`}</style>
+      <style>{`@media (max-width: 860px) {
+        .filters-col { display: none !important; position: static !important; top: auto !important; }
+        .filters-col.open { display: block !important; }
+      }`}</style>
     </div>
   );
 }
