@@ -13,9 +13,11 @@ interface TownFieldProps {
 }
 
 /**
- * Search-as-you-type autocomplete over GN divisions ("towns") within a district.
- * Filtering happens server-side (app/api/locations/towns) so the ~13,400-entry
- * dataset never has to be shipped to the client — only the top ~20 matches are.
+ * Search-as-you-type autocomplete over GN divisions ("towns"). Independent of
+ * District — selectable and searchable whether or not a district is picked;
+ * passing `district` just narrows suggestions to that district. Filtering
+ * happens server-side (app/api/locations/towns) so the ~13,400-entry dataset
+ * never has to be shipped to the client — only the top ~20 matches are.
  */
 export function TownField({ district, value, onChange, placeholder, disabled, inputStyle }: TownFieldProps) {
   const { colors } = useTheme();
@@ -24,13 +26,11 @@ export function TownField({ district, value, onChange, placeholder, disabled, in
   const [options, setOptions] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!district) {
-      setOptions([]);
-      return;
-    }
     let cancelled = false;
+    const params = new URLSearchParams({ q: value });
+    if (district) params.set("district", district);
     const handle = setTimeout(() => {
-      fetch(`/api/locations/towns?district=${encodeURIComponent(district)}&q=${encodeURIComponent(value)}`)
+      fetch(`/api/locations/towns?${params.toString()}`)
         .then((r) => r.json())
         .then((json) => { if (!cancelled) setOptions(json.towns ?? []); })
         .catch(() => { if (!cancelled) setOptions([]); });

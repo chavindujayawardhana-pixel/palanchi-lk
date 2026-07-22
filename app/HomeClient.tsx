@@ -173,7 +173,7 @@ export function HomeClient() {
           </div>
           <div className="hero-field hero-field-side" style={{ display: "flex", alignItems: "center", gap: 8, borderLeft: `1px solid ${border}`, padding: "8px 10px", flex: "0 0 150px" }}>
             <MapPin size={18} color={textMuted} />
-            <select value={district} onChange={(e) => { setDistrict(e.target.value); setTown(""); }}
+            <select value={district} onChange={(e) => setDistrict(e.target.value)}
               style={{ border: "none", outline: "none", background: "transparent", color: text, fontSize: 15, width: "100%" }}>
               <option value="">{t.searchDistrict}</option>
               {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
@@ -185,8 +185,7 @@ export function HomeClient() {
               value={town}
               onChange={setTown}
               placeholder={t.searchTown}
-              disabled={!district}
-              inputStyle={{ border: "none", outline: "none", background: "transparent", color: text, fontSize: 15, width: "100%", opacity: district ? 1 : 0.5 }}
+              inputStyle={{ border: "none", outline: "none", background: "transparent", color: text, fontSize: 15, width: "100%" }}
             />
           </div>
           <button type="submit" className="btn hero-search-btn" style={{ flex: "0 0 auto", background: gold, color: "#1F2937", borderRadius: 12, padding: "12px 26px", fontWeight: 600, fontSize: 15 }}>

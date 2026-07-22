@@ -242,12 +242,12 @@ function SearchPageInner() {
 
             <label style={labelStyle}>{t.district}</label>
             <div style={{ marginBottom: 16 }}>
-              <DistrictField value={district} onChange={(v) => { setDistrict(v); setTown(""); }} placeholder={t.allDistricts} inputStyle={fieldStyle} />
+              <DistrictField value={district} onChange={setDistrict} placeholder={t.allDistricts} inputStyle={fieldStyle} />
             </div>
 
             <label style={labelStyle}>{t.town}</label>
             <div style={{ marginBottom: 16 }}>
-              <TownField district={district} value={town} onChange={setTown} placeholder={t.allTowns} disabled={!district} inputStyle={{ ...fieldStyle, opacity: district ? 1 : 0.5 }} />
+              <TownField district={district} value={town} onChange={setTown} placeholder={t.allTowns} inputStyle={fieldStyle} />
             </div>
 
             <label style={labelStyle}>{t.minPrice}</label>
