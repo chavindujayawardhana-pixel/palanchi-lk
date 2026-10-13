@@ -25,3 +25,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# secrets, local tool settings and drafts
+.env*
+.claude/
+*password*
+readme-draft/
+palanchi-screenshots/
