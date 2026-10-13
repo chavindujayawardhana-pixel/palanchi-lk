@@ -29,6 +29,6 @@ next-env.d.ts
 # secrets, local tool settings and drafts
 .env*
 .claude/
-*password*
+*password*.txt
 readme-draft/
 palanchi-screenshots/
